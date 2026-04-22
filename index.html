@@ -1,707 +1,871 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>জীববিদ্যা MCQ কুইজ - অধ্যায় ১</title>
-<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.tailwindcss.com"></script>
-<style>
-  * { font-family: 'Hind Siliguri', sans-serif; }
-  body { background: #eef4ff; min-height: 100vh; }
-
-  .topic-card {
-    transition: transform 0.2s, box-shadow 0.2s;
-    cursor: pointer;
-  }
-  .topic-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 16px 40px rgba(0,0,0,0.18);
-  }
-
-  .option-btn {
-    transition: all 0.18s;
-    text-align: left;
-    width: 100%;
-    cursor: pointer;
-    border: 2px solid #e5e7eb;
-    background: #f9fafb;
-  }
-  .option-btn:not(:disabled):hover {
-    transform: translateX(5px);
-    border-color: #93c5fd;
-    background: #eff6ff;
-    box-shadow: 0 3px 12px rgba(59,130,246,0.12);
-  }
-  .option-btn:disabled { cursor: default; }
-  .option-correct { background: #dcfce7 !important; border-color: #22c55e !important; color: #166534 !important; }
-  .option-wrong   { background: #fee2e2 !important; border-color: #ef4444 !important; color: #991b1b !important; }
-
-  .progress-bar { transition: width 0.5s ease; }
-
-  .fade-in { animation: fadeIn 0.3s ease; }
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  .confetti-anim { animation: pop 0.4s ease; }
-  @keyframes pop {
-    0%   { transform: scale(0.75); opacity: 0; }
-    65%  { transform: scale(1.08); }
-    100% { transform: scale(1); opacity: 1; }
-  }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>নবম শ্রেণী জীবনবিজ্ঞান সহায়ক</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['"Anek Bangla"', 'sans-serif'] },
+                    colors: { primary: '#059669', secondary: '#10b981', dark: '#064e3b' }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Anek Bangla', sans-serif; background-color: #f3f4f6; }
+        .spinner { border: 4px solid rgba(0,0,0,0.1); border-left-color: #059669; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #10b981; border-radius: 4px; }
+        .tab-btn.active { border-bottom: 2px solid #059669; color: #059669; font-weight: bold; }
+    </style>
 </head>
-<body>
+<body class="text-gray-800 antialiased overflow-x-hidden">
 
-<!-- ===== HOME PAGE ===== -->
-<div id="homePage" class="min-h-screen p-4 md:p-8">
-  <div class="max-w-5xl mx-auto">
-
-    <div class="text-center mb-10">
-      <div class="inline-block bg-white rounded-3xl px-8 py-6 shadow-lg mb-4">
-        <h1 class="text-3xl md:text-4xl font-bold text-blue-800">🧬 জীববিদ্যা কুইজ</h1>
-        <p class="text-gray-400 mt-1 text-base font-medium">অধ্যায় ১ · মোট 380টি MCQ</p>
-      </div>
-      <p class="text-gray-600 text-lg">একটি টপিক বেছে নিয়ে কুইজ শুরু করো!</p>
+    <!-- Loading Overlay -->
+    <div id="loader" class="fixed inset-0 bg-white/80 z-[100] hidden flex-col items-center justify-center backdrop-blur-sm">
+        <div class="spinner mb-4"></div>
+        <h2 class="text-xl font-bold text-primary">লোড হচ্ছে...</h2>
     </div>
 
-    <div id="topicGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"></div>
-  </div>
-</div>
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="fixed top-5 right-5 z-[110] flex flex-col gap-2"></div>
 
-<!-- ===== QUIZ PAGE ===== -->
-<div id="quizPage" class="hidden min-h-screen flex flex-col">
+    <!-- MAIN APP CONTAINER -->
+    <div id="app" class="min-h-screen flex flex-col">
 
-  <!-- Header -->
-  <div class="bg-white shadow-sm sticky top-0 z-10">
-    <div class="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
-      <div class="flex items-center gap-3 min-w-0">
-        <button onclick="goHome()"
-          class="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-2xl bg-blue-50 hover:bg-blue-100 text-blue-700 text-xl transition">🏠</button>
-        <div class="min-w-0">
-          <div class="font-bold text-gray-800 text-base leading-tight truncate" id="quizTopicTitle"></div>
-          <div class="text-xs text-gray-400 font-medium" id="quizProgress"></div>
+        <!-- LOGIN VIEW -->
+        <div id="view-login" class="flex-1 flex items-center justify-center p-4">
+            <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+                <div class="bg-primary p-6 text-center text-white">
+                    <i class="fa-solid fa-leaf text-4xl mb-2"></i>
+                    <h1 class="text-2xl font-bold">নবম শ্রেণী জীবনবিজ্ঞান সহায়ক</h1>
+                </div>
+                
+                <div class="flex border-b">
+                    <button onclick="toggleAuthTab('student')" id="tab-login-student" class="flex-1 py-3 font-semibold bg-gray-50 text-primary border-b-2 border-primary transition">ছাত্র/ছাত্রী</button>
+                    <button onclick="toggleAuthTab('admin')" id="tab-login-admin" class="flex-1 py-3 font-semibold text-gray-500 hover:bg-gray-50 transition">অ্যাডমিন</button>
+                </div>
+
+                <div class="p-6">
+                    <!-- Student Form -->
+                    <form id="form-student-login" class="space-y-4" onsubmit="handleStudentLogin(event)">
+                        <div>
+                            <label class="block text-sm font-semibold mb-1">নাম <span class="text-red-500">*</span></label>
+                            <input type="text" id="std-name" required class="w-full border rounded-lg px-3 py-2 focus:outline-primary" placeholder="তোমার নাম">
+                        </div>
+                        <div class="flex gap-4">
+                            <div class="flex-1">
+                                <label class="block text-sm font-semibold mb-1">রোল নং <span class="text-red-500">*</span></label>
+                                <input type="number" id="std-roll" required class="w-full border rounded-lg px-3 py-2 focus:outline-primary" placeholder="রোল">
+                            </div>
+                            <div class="flex-1">
+                                <label class="block text-sm font-semibold mb-1">সেকশন <span class="text-red-500">*</span></label>
+                                <input type="text" id="std-sec" required class="w-full border rounded-lg px-3 py-2 focus:outline-primary" placeholder="A/B/C">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold mb-1">শ্রেণী</label>
+                            <input type="text" id="std-class" value="নবম শ্রেণী" readonly class="w-full border rounded-lg px-3 py-2 bg-gray-100 text-gray-600">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold mb-1">বিদ্যালয়ের নাম</label>
+                            <input type="text" id="std-school" value="Hatgacha Haridas Vidyapith (H.S.)" class="w-full border rounded-lg px-3 py-2 focus:outline-primary">
+                        </div>
+                        <button type="submit" class="w-full bg-primary hover:bg-dark text-white font-bold py-2 px-4 rounded-lg transition shadow-md">প্রবেশ করুন</button>
+                    </form>
+
+                    <!-- Admin Form -->
+                    <form id="form-admin-login" class="space-y-4 hidden" onsubmit="handleAdminLogin(event)">
+                        <div>
+                            <label class="block text-sm font-semibold mb-1">অ্যাডমিন আইডি</label>
+                            <input type="text" id="admin-id" required class="w-full border rounded-lg px-3 py-2 focus:outline-primary" placeholder="Admin ID">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold mb-1">পাসওয়ার্ড</label>
+                            <input type="password" id="admin-pwd" required class="w-full border rounded-lg px-3 py-2 focus:outline-primary" placeholder="****">
+                        </div>
+                        <button type="submit" class="w-full bg-gray-800 hover:bg-black text-white font-bold py-2 px-4 rounded-lg transition shadow-md">লগইন করুন</button>
+                    </form>
+                </div>
+            </div>
         </div>
-      </div>
-      <button onclick="goHome()"
-        class="flex-shrink-0 hidden sm:flex items-center gap-1 text-sm bg-gray-100 hover:bg-gray-200 text-gray-600 font-semibold px-4 py-2 rounded-2xl transition">
-        ← হোমে ফিরুন
-      </button>
+
+        <!-- STUDENT DASHBOARD -->
+        <div id="view-student" class="hidden flex-1 flex flex-col md:flex-row h-screen">
+            <!-- Mobile Header -->
+            <div class="bg-primary text-white p-4 flex justify-between items-center md:hidden shadow-md z-10">
+                <h1 class="font-bold text-lg truncate"><i class="fa-solid fa-leaf mr-2"></i>জীবনবিজ্ঞান সহায়ক</h1>
+                <button onclick="toggleSidebar('std-sidebar')" class="text-white text-2xl"><i class="fa-solid fa-bars"></i></button>
+            </div>
+
+            <!-- Sidebar -->
+            <aside id="std-sidebar" class="bg-white w-full md:w-72 shadow-lg h-full fixed md:relative z-20 transform -translate-x-full md:translate-x-0 transition-transform duration-300 flex flex-col">
+                <div class="p-5 bg-primary text-white hidden md:block">
+                    <h1 class="font-bold text-xl"><i class="fa-solid fa-leaf mr-2"></i>জীবনবিজ্ঞান সহায়ক</h1>
+                    <p class="text-sm opacity-90 mt-1" id="std-user-name">Student Name</p>
+                </div>
+                <div class="md:hidden p-4 bg-gray-100 flex justify-between items-center border-b">
+                    <span class="font-bold text-primary">মেনু</span>
+                    <button onclick="toggleSidebar('std-sidebar')" class="text-xl text-gray-600"><i class="fa-solid fa-times"></i></button>
+                </div>
+                
+                <div class="flex-1 overflow-y-auto py-4">
+                    <p class="px-5 text-xs font-bold text-gray-400 uppercase mb-2">অধ্যায়সমূহ</p>
+                    <nav id="std-chapter-list" class="space-y-1 mb-6"></nav>
+                    
+                    <p class="px-5 text-xs font-bold text-gray-400 uppercase mb-2">পরীক্ষা</p>
+                    <nav>
+                        <button onclick="loadStudentView('mock')" class="w-full text-left px-5 py-3 hover:bg-emerald-50 text-gray-700 font-semibold border-l-4 border-transparent hover:border-primary transition flex items-center gap-3">
+                            <i class="fa-solid fa-laptop-file text-blue-500 w-5"></i> মক টেস্ট (Mock Test)
+                        </button>
+                    </nav>
+                </div>
+                <div class="p-4 border-t">
+                    <button onclick="logout()" class="w-full py-2 bg-red-50 text-red-600 font-bold rounded-lg hover:bg-red-100 transition"><i class="fa-solid fa-sign-out-alt mr-2"></i>লগআউট</button>
+                </div>
+            </aside>
+
+            <!-- Main Content Area -->
+            <main class="flex-1 bg-gray-50 h-full overflow-y-auto p-4 md:p-8 relative" id="std-main-content">
+                <!-- Content injected here -->
+            </main>
+        </div>
+
+        <!-- ADMIN DASHBOARD -->
+        <div id="view-admin" class="hidden flex-1 flex flex-col md:flex-row h-screen">
+            <!-- Mobile Header -->
+            <div class="bg-gray-800 text-white p-4 flex justify-between items-center md:hidden shadow-md z-10">
+                <h1 class="font-bold text-lg"><i class="fa-solid fa-user-shield mr-2"></i>অ্যাডমিন প্যানেল</h1>
+                <button onclick="toggleSidebar('admin-sidebar')" class="text-white text-2xl"><i class="fa-solid fa-bars"></i></button>
+            </div>
+
+            <!-- Sidebar -->
+            <aside id="admin-sidebar" class="bg-gray-800 text-white w-full md:w-64 shadow-lg h-full fixed md:relative z-20 transform -translate-x-full md:translate-x-0 transition-transform duration-300 flex flex-col">
+                <div class="p-5 border-b border-gray-700 hidden md:block">
+                    <h1 class="font-bold text-xl"><i class="fa-solid fa-user-shield mr-2"></i>অ্যাডমিন প্যানেল</h1>
+                </div>
+                <div class="md:hidden p-4 bg-gray-900 flex justify-between items-center border-b border-gray-700">
+                    <span class="font-bold text-white">মেনু</span>
+                    <button onclick="toggleSidebar('admin-sidebar')" class="text-xl text-gray-400"><i class="fa-solid fa-times"></i></button>
+                </div>
+                
+                <div class="flex-1 overflow-y-auto py-4">
+                    <nav id="admin-nav" class="space-y-1">
+                        <button onclick="switchAdminTab('students')" class="admin-tab w-full text-left px-5 py-3 hover:bg-gray-700 font-semibold border-l-4 border-transparent transition"><i class="fa-solid fa-users w-6"></i> ছাত্রছাত্রী</button>
+                        <button onclick="switchAdminTab('logs')" class="admin-tab w-full text-left px-5 py-3 hover:bg-gray-700 font-semibold border-l-4 border-transparent transition"><i class="fa-solid fa-history w-6"></i> লগিন হিস্ট্রি</button>
+                        <button onclick="switchAdminTab('materials')" class="admin-tab w-full text-left px-5 py-3 hover:bg-gray-700 font-semibold border-l-4 border-transparent transition"><i class="fa-solid fa-book w-6"></i> স্টাডি মেটেরিয়াল</button>
+                        <button onclick="switchAdminTab('videos')" class="admin-tab w-full text-left px-5 py-3 hover:bg-gray-700 font-semibold border-l-4 border-transparent transition"><i class="fa-brands fa-youtube w-6 text-red-400"></i> ভিডিও ক্লাস</button>
+                        <button onclick="switchAdminTab('mockTests')" class="admin-tab w-full text-left px-5 py-3 hover:bg-gray-700 font-semibold border-l-4 border-transparent transition"><i class="fa-solid fa-laptop-file w-6 text-blue-400"></i> মক টেস্ট</button>
+                        <button onclick="switchAdminTab('practiceTests')" class="admin-tab w-full text-left px-5 py-3 hover:bg-gray-700 font-semibold border-l-4 border-transparent transition"><i class="fa-solid fa-brain w-6 text-purple-400"></i> প্র্যাকটিস MCQ</button>
+                    </nav>
+                </div>
+                <div class="p-4 border-t border-gray-700">
+                    <button onclick="logout()" class="w-full py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg transition"><i class="fa-solid fa-sign-out-alt mr-2"></i>লগআউট</button>
+                </div>
+            </aside>
+
+            <!-- Main Content Area -->
+            <main class="flex-1 bg-gray-100 h-full overflow-y-auto p-4 md:p-8" id="admin-main-content">
+                <!-- Content injected here -->
+            </main>
+        </div>
     </div>
-    <!-- Progress bar -->
-    <div class="w-full bg-gray-100 h-2">
-      <div id="progressBar" class="progress-bar bg-blue-500 h-2 rounded-r-full" style="width:0%"></div>
-    </div>
-  </div>
 
-  <!-- Score bar -->
-  <div class="bg-white border-b border-gray-100">
-    <div class="max-w-3xl mx-auto px-4 py-2 flex gap-6 text-sm font-semibold">
-      <span class="text-green-600">✅ সঠিক: <span id="scoreCorrect">0</span></span>
-      <span class="text-red-500">❌ ভুল: <span id="scoreWrong">0</span></span>
-    </div>
-  </div>
+    <!-- MAIN JAVASCRIPT LOGIC -->
+    <script>
+        // ==========================================
+        // 1. CONFIGURATION & STATE
+        // ==========================================
+        
+        // REPLACE THIS URL WITH YOUR PUBLISHED GOOGLE APPS SCRIPT WEB APP URL
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbyj8f4eovZAJ29JHhwOEgDDLH_0M-ghH_hzvYz60yUZ9xOUIk0BK2qbqAPayaMpujbcYw/exec"; 
 
-  <!-- Question card -->
-  <div class="flex-1 max-w-3xl mx-auto w-full px-4 py-5">
+        const CHAPTERS = [
+            "জীবন ও তার বৈচিত্র",
+            "জীবন সংগঠনের স্তর",
+            "জৈবনিক প্রক্রিয়া",
+            "জীববিদ্যা ও মানবকল্যাণ",
+            "পরিবেশ ও তার সম্পদ"
+        ];
 
-    <div id="questionCard" class="bg-white rounded-3xl shadow-md p-5 md:p-7 fade-in">
-      <p class="text-gray-400 text-xs font-bold uppercase tracking-widest mb-3">
-        প্রশ্ন <span id="qNum"></span>
-      </p>
-      <p id="questionText" class="font-semibold text-gray-800 leading-relaxed mb-6"
-         style="font-size:1.45rem; line-height:2rem;"></p>
+        let state = {
+            currentUser: null, // object for student, 'admin' for admin
+            view: 'login', // login, student, admin
+            data: { materials: [], videos: [], mockTests: [], practiceTests: [], students: [], logs: [] },
+            currentChapter: 0,
+            studentTab: 'notes',
+            score: 0
+        };
 
-      <div id="optionsContainer" class="flex flex-col gap-3"></div>
+        // ==========================================
+        // 2. UTILITY FUNCTIONS
+        // ==========================================
 
-      <!-- Feedback -->
-      <div id="feedbackBox" class="hidden mt-5 rounded-2xl px-5 py-4 font-semibold"
-           style="font-size:1rem"></div>
+        function showSpinner(show) {
+            document.getElementById('loader').style.display = show ? 'flex' : 'none';
+        }
 
-      <!-- Nav buttons -->
-      <div class="flex items-center justify-between mt-6">
-        <button onclick="resetQuiz()"
-          class="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-600 font-semibold px-5 py-3 rounded-2xl transition shadow-sm text-sm md:text-base">
-          🔄 রিসেট
-        </button>
-        <button id="nextBtn" onclick="nextQuestion()"
-          class="hidden items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold px-7 py-3 rounded-2xl transition shadow-md text-sm md:text-base">
-          পরবর্তী প্রশ্ন →
-        </button>
-      </div>
-    </div>
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const color = type === 'success' ? 'bg-green-500' : (type === 'error' ? 'bg-red-500' : 'bg-blue-500');
+            toast.className = `${color} text-white px-4 py-3 rounded-lg shadow-lg transform transition-all duration-300 translate-x-full flex items-center gap-2`;
+            toast.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-check-circle' : 'fa-info-circle'}"></i> ${message}`;
+            
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.remove('translate-x-full'), 10);
+            setTimeout(() => {
+                toast.classList.add('translate-x-full');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
 
-    <!-- Finish screen -->
-    <div id="finishCard" class="hidden bg-white rounded-3xl shadow-md p-8 text-center confetti-anim">
-      <div class="text-6xl mb-4">🎉</div>
-      <h2 class="text-2xl font-bold text-gray-800 mb-2">অভিনন্দন!</h2>
-      <p class="text-gray-500 mb-1 text-lg">তুমি সব প্রশ্ন শেষ করেছ।</p>
-      <p id="scoreText" class="text-4xl font-bold text-blue-700 my-4"></p>
-      <p id="gradeText" class="text-xl font-semibold mb-6"></p>
-      <div class="flex flex-col sm:flex-row gap-3 justify-center">
-        <button onclick="resetQuiz()"
-          class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-3 rounded-2xl text-lg transition shadow">
-          🔄 আবার চেষ্টা করো
-        </button>
-        <button onclick="goHome()"
-          class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold px-8 py-3 rounded-2xl text-lg transition">
-          🏠 হোমে ফিরুন
-        </button>
-      </div>
-    </div>
+        function toBengaliNum(num) {
+            const digits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+            return num.toString().split('').map(d => digits[d] || d).join('');
+        }
 
-  </div>
-</div>
+        function toggleSidebar(id) {
+            const sidebar = document.getElementById(id);
+            sidebar.classList.toggle('-translate-x-full');
+        }
 
-<script>
-const allQuestions = {
-  topic1: [
-    {q:'পৃথিবীর উৎপত্তি আজ থেকে প্রায় কত বছর আগে হয়েছিল?',a:'৪.৬ বিলিয়ন',o:['৪.৬ বিলিয়ন','৩.৭ বিলিয়ন','৩.৫ বিলিয়ন','১.৯ বিলিয়ন']},
-    {q:'পৃথিবীতে প্রথম প্রাণের সৃষ্টি হয়েছিল প্রায় কত বছর পূর্বে?',a:'৩.৭ বিলিয়ন',o:['৪.৬ বিলিয়ন','৩.৭ বিলিয়ন','৩.৫ বিলিয়ন','১.৯ বিলিয়ন']},
-    {q:'জীবন সৃষ্টির রাসায়নিক তত্ত্ব কে প্রস্তাব করেন?',a:'ওপারিন ও হ্যালডেন',o:['ডারউইন','ল্যামার্ক','ওপারিন ও হ্যালডেন','সিডনি ফক্স']},
-    {q:'আদিম পৃথিবীর বায়ুমণ্ডলে কোন গ্যাসটি মুক্ত অবস্থায় ছিল না?',a:'অক্সিজেন',o:['হাইড্রোজেন','নাইট্রোজেন','মিথেন','অক্সিজেন']},
-    {q:'হ্যালডেনের মতে আদিম সমুদ্রের মিশ্রণকে কী বলা হয়?',a:'গরম তরল স্যুপ',o:['মাইক্রোস্ফিয়ার','গরম তরল স্যুপ','কোয়াসারভেট','প্রোটোবায়োন্ট']},
-    {q:'আদিম পৃথিবীর বায়ুমণ্ডল কেমন প্রকৃতির ছিল?',a:'বিজারক',o:['জারক','বিজারক','নিরপেক্ষ','কোনোটিই নয়']},
-    {q:'কোয়াসারভেট তত্ত্বের প্রবক্তা কে?',a:'ওপারিন',o:['ওপারিন','সিডনি ফক্স','হ্যালডেন','অ্যারিস্টটল']},
-    {q:'মাইক্রোস্ফিয়ার তত্ত্বের প্রবক্তা কে?',a:'সিডনি ফক্স',o:['ওপারিন','সিডনি ফক্স','হ্যালডেন','ডারউইন']},
-    {q:'কোয়াসারভেট বা মাইক্রোস্ফিয়ারের সাথে নিউক্লিক অ্যাসিড যুক্ত হয়ে কী তৈরি হয়?',a:'প্রোটোবায়োন্ট',o:['প্রোটিন','প্রোটোবায়োন্ট','নগ্ন জিন','শর্করা']},
-    {q:'পৃথিবীতে প্রথম উৎপন্ন নিউক্লিক অ্যাসিড কোনটি?',a:'RNA',o:['DNA','RNA','ATP','NADP']},
-    {q:'\'নগ্ন জিন\' কাকে বলা হয়?',a:'প্রোটিনবিহীন একতন্ত্রী RNA',o:['প্রোটিনবিহীন DNA','প্রোটিনবিহীন একতন্ত্রী RNA','ক্রোমোজোম','রাইবোজোম']},
-    {q:'প্রথম সৃষ্ট প্রকৃত এককোষী জীব বা \'ইওবায়োন্ট\' কীরূপ ছিল?',a:'রাসায়নিক পরভোজী',o:['সালোকসংশ্লেষকারী','রাসায়নিক পরভোজী','স্বভোজী','মৃতজীবী']},
-    {q:'বায়ুমণ্ডলে প্রথম মুক্ত অক্সিজেন তৈরি করেছিল কারা?',a:'সায়ানোব্যাকটেরিয়া',o:['সালফার ব্যাকটেরিয়া','সায়ানোব্যাকটেরিয়া','ছত্রাক','ভাইরাস']},
-    {q:'প্রোটোবায়োন্ট থেকে প্রথম এককোষী জীবের সৃষ্টি হতে কত সময় লেগেছিল?',a:'৩.৫ বিলিয়ন বছর পূর্বে',o:['৩.৫ বিলিয়ন বছর পূর্বে','১.৯ বিলিয়ন বছর পূর্বে','৪.৬ বিলিয়ন বছর পূর্বে','৩.৭ বিলিয়ন বছর পূর্বে']},
-    {q:'জীবদেহে গঠনমূলক বিপাককে কী বলা হয়?',a:'উপচিতি',o:['অপচিতি','উপচিতি','শ্বসন','রেচন']},
-    {q:'উপচিতি বিপাকের ফলে জীবদেহের শুষ্ক ওজনের কী পরিবর্তন ঘটে?',a:'বৃদ্ধি পায়',o:['কমে যায়','একই থাকে','বৃদ্ধি পায়','শূন্য হয়ে যায়']},
-    {q:'নিচের কোনটি অপচিতি বিপাকের একটি উদাহরণ?',a:'শ্বসন',o:['সালোকসংশ্লেষ','পুষ্টি','প্রজনন','শ্বসন']},
-    {q:'জীবদেহের প্রাণ বা \'ভৌত ভিত্তি\' (Physical basis of life) কাকে বলা হয়?',a:'প্রোটোপ্লাজম',o:['প্রোটিন','প্রোটোপ্লাজম','নিউক্লিয়াস','কোষপ্রাচীর']},
-    {q:'সৃষ্টির শুরুতে আদিম পৃথিবীর তাপমাত্রা প্রায় কত ছিল?',a:'৫০০০-৬০০০°C',o:['১০০০-২০০০°C','৩০০০-৪০০০°C','৫০০০-৬০০০°C','৭০০০-৮০০০°C']},
-    {q:'আদিম পৃথিবীর বায়ুমণ্ডলে থাকা সায়ানোজেন গ্যাসের সংকেত কী?',a:'CN2',o:['CH4','NH3','CN2','CO2']},
-    {q:'বিজ্ঞানী ওপারিনের মতে, কোয়াসারভেটের আবরণীটি কী দিয়ে তৈরি ছিল?',a:'দ্বিস্তরী ফসফোলিপিড',o:['দ্বিস্তরী ফসফোলিপিড','সেলুলোজ','কাইটিন','পেপটাইডোগ্লাইক্যান']},
-    {q:'কোয়াসারভেটের আকার সাধারণত কত ছিল?',a:'১০-৫০০ মাইক্রন',o:['১-৫ মাইক্রন','১০-৫০০ মাইক্রন','১-১০ ন্যানোমিটার','৫০০-১০০০ মাইক্রন']},
-    {q:'মাইক্রোস্ফিয়ারের আকার সাধারণত কত মাইক্রন ছিল?',a:'১-৫ মাইক্রন',o:['১-৫ মাইক্রন','১০-৫০ মাইক্রন','১০০-৫০০ মাইক্রন','১০০০ মাইক্রন']},
-    {q:'মাইক্রোস্ফিয়ারের ভেতরে থাকা প্রোটিনসদৃশ অণুকে কী বলা হত?',a:'প্রোটিনয়েড',o:['প্রোটিনয়েড','নিউক্লিওটাইড','লিপিড','শর্করা']},
-    {q:'কেমোজেনি প্রক্রিয়ার দ্বিতীয় ধাপে কোন যৌগের সৃষ্টি হয়?',a:'জটিল জৈব যৌগ',o:['সরল জৈব যৌগ','হাইড্রোকার্বন','জটিল জৈব যৌগ','অজৈব যৌগ']},
-    {q:'প্রোটোবায়োন্ট থেকে সৃষ্ট প্রথম প্রকৃত এককোষী জীব বা \'ইওবায়োন্ট\'-দের শ্বসন কেমন প্রকৃতির ছিল?',a:'অবাত শ্বসনকারী',o:['সবাত শ্বসনকারী','অবাত শ্বসনকারী','পরজীবী','মৃতজীবী']},
-    {q:'সালোকসংশ্লেষে সক্ষম নীলাভ সবুজ শৈবাল বা সায়ানোব্যাকটেরিয়ার উদ্ভব কবে হয়েছিল?',a:'১.৯ বিলিয়ন বছর পূর্বে',o:['৪.৬ বিলিয়ন বছর পূর্বে','৩.৭ বিলিয়ন বছর পূর্বে','৩.৫ বিলিয়ন বছর পূর্বে','১.৯ বিলিয়ন বছর পূর্বে']},
-    {q:'জীব মাত্রই বাইরের উদ্দীপনায় সাড়া দেয়—জীবের এই ধর্মকে কী বলে?',a:'উত্তেজিতা',o:['উত্তেজিতা','বিপাক','চলন','বৃদ্ধি']},
-    {q:'কোয়াসারভেট মডেলের প্রবক্তা ওপারিন এবং মাইক্রোস্ফিয়ারের প্রবক্তা কে?',a:'সিডনি ফক্স',o:['হ্যালডেন','সিডনি ফক্স','ল্যামার্ক','ডারউইন']},
-    {q:'নিচের কোনটি প্রজননে সক্ষম নয়?',a:'সংকর জীব ও শ্রমিক মৌমাছি',o:['অ্যামিবা','মানুষ','সংকর জীব ও শ্রমিক মৌমাছি','স্পাইরোগাইরা']},
-    {q:'সালোকসংশ্লেষ ও পুষ্টি কী ধরনের বিপাক?',a:'উপচিতি বিপাক',o:['অপচিতি বিপাক','উপচিতি বিপাক','ধ্বংসাত্মক বিপাক','ভৌত বিপাক']},
-    {q:'সবুজ উদ্ভিদ সালোকসংশ্লেষের সময় সৌরশক্তিকে খাদ্যের মধ্যে কোন শক্তিরূপে আবদ্ধ করে?',a:'স্থৈতিক শক্তি',o:['তাপশক্তি','রাসায়নিক শক্তি','স্থৈতিক শক্তি','গতিশক্তি']},
-    {q:'শ্বসনের সময় খাদ্যের স্থৈতিক শক্তি কী রূপে মুক্ত হয়?',a:'তাপশক্তিরূপে',o:['তাপশক্তিরূপে','আলোকশক্তিরূপে','বিদ্যুৎশক্তিরূপে','শব্দশক্তিরূপে']},
-    {q:'খাদ্যগ্রহণ ও খাদ্যের আত্তীকরণের মাধ্যমে জীবদেহের শুষ্ক ওজন বেড়ে যাওয়াকে কী বলে?',a:'বৃদ্ধি',o:['প্রজনন','বৃদ্ধি','চলন','উত্তেজিতা']},
-    {q:'আদিম পৃথিবীর কেন্দ্রে কোন ভারী মৌলগুলি উপস্থিত ছিল?',a:'লোহা ও নিকেল',o:['হাইড্রোজেন ও কার্বন','লোহা ও নিকেল','অক্সিজেন ও নাইট্রোজেন','সিলিকন ও অ্যালুমিনিয়াম']},
-    {q:'আদিম পৃথিবীর উত্তপ্ত বায়ুমণ্ডলে থাকা মিথেন গ্যাসের সংকেত কী?',a:'CH4',o:['NH3','CN2','CH4','H2O']},
-    {q:'আদিম পৃথিবীর উত্তপ্ত বায়ুমণ্ডলে থাকা অ্যামোনিয়া গ্যাসের সংকেত কী?',a:'NH3',o:['NH3','CH4','CO2','CN2']},
-    {q:'\'গরম তরল স্যুপ\' (Hot Dilute Soup)-এ মূলত কী কী জৈব যৌগ মিশ্রিত ছিল?',a:'প্রোটিন, শর্করা ও লিপিড',o:['কেবল শর্করা','প্রোটিন, শর্করা ও লিপিড','কেবল অ্যামাইনো অ্যাসিড','কেবল নিউক্লিক অ্যাসিড']},
-    {q:'রাসায়নিক বিবর্তন বা কেমোজেনি-এর প্রথম ধাপে সরল জৈব যৌগের মধ্যে প্রথম কী তৈরি হয়?',a:'হাইড্রোকার্বন',o:['প্রোটিন','হাইড্রোকার্বন','ফ্যাট','নিউক্লিক অ্যাসিড']},
-    {q:'অবাত শ্বসনকারী রাসায়নিক পরভোজী ব্যাকটেরিয়ার একটি উদাহরণ কী?',a:'সালফার ব্যাকটেরিয়া',o:['সালফার ব্যাকটেরিয়া','সায়ানোব্যাকটেরিয়া','ই. কোলাই','ল্যাকটোব্যাসিলি']},
-    {q:'পৃথিবীতে উৎপন্ন প্রথম কোষ বা আদি কোশকে কী বলা হয়?',a:'প্রোটোবায়োন্ট বা আদি কোষ',o:['মাইক্রোস্ফিয়ার','প্রোটোবায়োন্ট বা আদি কোষ','কোয়াসারভেট','ইওবায়োন্ট']},
-    {q:'সজীব বস্তুর উৎপত্তি, গঠন এবং জীবন প্রক্রিয়া কার সঙ্গে পারস্পরিক নির্ভরশীল?',a:'পরিবেশের',o:['জড় বস্তুর','পরিবেশের','মহাশূন্যের','সূর্যালোকের']},
-    {q:'উদ্ভিদ খাদ্য উৎপাদনের সময় সৌরশক্তি শোষণ করে কোন রঞ্জকের সাহায্যে?',a:'ক্লোরোফিল',o:['ক্যারোটিন','জ্যান্থোফিল','ক্লোরোফিল','ফাইকোসায়ানিন']},
-    {q:'খাদ্যে সঞ্চিত স্থৈতিক শক্তি কোন প্রক্রিয়ায় তাপশক্তিরূপে মুক্ত হয়?',a:'শ্বসন',o:['পুষ্টি','সালোকসংশ্লেষ','শ্বসন','রেচন']},
-    {q:'কোন প্রক্রিয়ায় প্রোটোপ্লাজম সংশ্লেষিত হয়ে জীবদেহের আকার ও আয়তন বৃদ্ধি পায়?',a:'বৃদ্ধি',o:['চলন','বৃদ্ধি','প্রজনন','গমন']},
-    {q:'পৃথিবীর প্রথম সৃষ্ট জ্বলন্ত গ্যাসীয় পিণ্ডের তাপমাত্রা কত ছিল?',a:'৫০০০-৬০০০°C',o:['১০০০-২০০০°C','২০০০-৩০০০°C','৫০০০-৬০০০°C','১০০০০°C']},
-    {q:'আদিম পৃথিবীর কেন্দ্রভাগে কোন মৌলগুলি অবস্থান করত?',a:'লোহা ও নিকেল',o:['কার্বন ও অক্সিজেন','নাইট্রোজেন ও হাইড্রোজেন','লোহা ও নিকেল','সোডিয়াম ও পটাশিয়াম']},
-    {q:'আদিম পৃথিবীর বায়ুমণ্ডলে থাকা হাইড্রোজেন, কার্বন, অক্সিজেন প্রভৃতি কীরূপ মৌল ছিল?',a:'হালকা মৌল',o:['ভারী মৌল','হালকা মৌল','নিষ্ক্রিয় গ্যাস','তেজস্ক্রিয় মৌল']},
-    {q:'আদিম পৃথিবীর বায়ুমণ্ডলে থাকা উপাদানগুলি প্রথমে কোন অবস্থায় ছিল?',a:'গ্যাসীয়',o:['কঠিন','তরল','গ্যাসীয়','প্লাজমা']},
-    {q:'কেমোজেনি প্রক্রিয়ায় সরল জৈব যৌগের মিলনে প্রথম কোন জটিল শর্করা তৈরি হয়?',a:'শ্বেতসার ও গ্লাইকোজেন',o:['গ্লুকোজ','ফ্রুক্টোজ','শ্বেতসার ও গ্লাইকোজেন','সুক্রোজ']},
-    {q:'আদিম সমুদ্রে কোলয়েডধর্মী, দ্বিস্তরী ফসফোলিপিডের আবরণযুক্ত গঠনকে কী বলে?',a:'কোয়াসারভেট',o:['মাইক্রোস্ফিয়ার','কোয়াসারভেট','প্রোটোবায়োন্ট','নিউক্লিওটাইড']},
-    {q:'সিডনি ফক্সের মতে আদিম সমুদ্রের প্রোটিনসদৃশ অণু দিয়ে তৈরি গোলাকার গঠনের আকার কত ছিল?',a:'১-৫ মাইক্রন',o:['১-৫ মাইক্রন','১০-৫০ মাইক্রন','১০০-৫০০ মাইক্রন','১০০০ মাইক্রন']},
-    {q:'প্রোটোবায়োন্ট থেকে উন্নত প্রাণের সৃষ্টির পর্যায়কে কী বলা হয়?',a:'বায়োজেনি',o:['কেমোজেনি','বায়োজেনি','মাইক্রোস্ফিয়ার','কোয়াসারভেট']},
-    {q:'প্রথম এককোষী প্রকৃত জীব বা \'ইওবায়োন্ট\' কেমন প্রকৃতির ছিল?',a:'রাসায়নিক পরভোজী ও অবাত শ্বসনকারী',o:['স্বভোজী','মৃতজীবী','রাসায়নিক পরভোজী ও অবাত শ্বসনকারী','সালোকসংশ্লেষকারী']},
-    {q:'জল ভেঙে মুক্ত অক্সিজেন তৈরি করেছিল কোন জীব?',a:'নীলাভ সবুজ শৈবাল বা সায়ানোব্যাকটেরিয়া',o:['অবাত ব্যাকটেরিয়া','নীলাভ সবুজ শৈবাল বা সায়ানোব্যাকটেরিয়া','ছত্রাক','অ্যামিবা']},
-  ],
-  topic2: [
-    {q:'বিভিন্ন বাস্তুতন্ত্রে জীবদের মধ্যে যে বিভিন্নতা দেখা যায়, তাকে কী বলে?',a:'জীববৈচিত্র্য',o:['প্রকরণ','পরিব্যক্তি','জীববৈচিত্র্য','অভিযোজন']},
-    {q:'জীবের জিনের গঠনে হঠাৎ ও স্থায়ী পরিবর্তনকে কী বলে?',a:'মিউটেশন',o:['প্রকরণ','মিউটেশন','জনন','অভিযোজন']},
-    {q:'যৌন জননের সময় কোন কোষগুলির মিলনে বৈচিত্র্য আসে?',a:'শুক্রাণু ও ডিম্বাণু',o:['দেহকোষ','শুক্রাণু ও ডিম্বাণু','স্নায়ুকোষ','রক্তকোষ']},
-    {q:'মানুষের উচ্চতা বা গায়ের রঙের পার্থক্য কীসের উদাহরণ?',a:'প্রকরণ',o:['মিউটেশন','অভিযোজন','প্রকরণ','প্রাকৃতিক নির্বাচন']},
-    {q:'বাদুড়ের ওড়ার জন্য প্যাটাজিয়ামের সৃষ্টি কীসের উদাহরণ?',a:'অভিযোজন',o:['প্রকরণ','মিউটেশন','অভিযোজন','বিচ্ছিন্নতা']},
-    {q:'গ্যালাপাগোস দ্বীপপুঞ্জের ফিঞ্চ পাখিদের ঠোঁটের পরিবর্তন কীসের কারণে ঘটেছিল?',a:'বিচ্ছিন্নতা',o:['মিউটেশন','জনন','প্রাকৃতিক নির্বাচন','বিচ্ছিন্নতা']},
-    {q:'জীবন সংগ্রামে টিকে থাকার জন্য অনুকূল বৈশিষ্ট্য অর্জনকারী জীবকে প্রকৃতি বেছে নেয়—একে কী বলে?',a:'প্রাকৃতিক নির্বাচন',o:['মিউটেশন','প্রাকৃতিক নির্বাচন','অভিযোজন','প্রকরণ']},
-    {q:'পৃথিবীতে এখনও পর্যন্ত কত মিলিয়ন প্রজাতি আবিষ্কৃত হয়েছে?',a:'৩০',o:['১০','২০','৩০','৪০']},
-    {q:'মিউটেশন প্রধানত কয় প্রকারের হয়?',a:'২',o:['২','৩','৪','৫']},
-    {q:'প্রকরণ এক জনু থেকে পরবর্তী জনুতে কীভাবে স্থানান্তরিত হয়?',a:'জননের মাধ্যমে',o:['খাদ্যের মাধ্যমে','জননের মাধ্যমে','পরিবেশের মাধ্যমে','বিচ্ছিন্নতার মাধ্যমে']},
-    {q:'জিনগত মিউটেশন ছাড়া জীবের দেহে আর কী ধরনের মিউটেশন দেখা যায়?',a:'ক্রোমোজোমাল মিউটেশন',o:['প্রোটিনগত মিউটেশন','ক্রোমোজোমাল মিউটেশন','কোশীয় মিউটেশন','শারীরবৃত্তীয় মিউটেশন']},
-    {q:'গ্যালাপাগোস দ্বীপপুঞ্জের যেসব ফিঞ্চ পাখি গাছে থেকে পোকা খেত, তাদের ঠোঁট কেমন হয়ে গিয়েছিল?',a:'লম্বা প্রকৃতির',o:['ছোটো ও মজবুত','চওড়া','লম্বা প্রকৃতির','বাঁকানো']},
-    {q:'সুউচ্চ পাহাড়, সমুদ্র বা মরুভূমির কারণে কোনো প্রজাতির আলাদা হয়ে পড়াকে কী বলে?',a:'বিচ্ছিন্নতা',o:['প্রকরণ','পরিব্যক্তি','বিচ্ছিন্নতা','প্রাকৃতিক নির্বাচন']},
-    {q:'মেরু অঞ্চলের কুকুর বা ভাল্লুকের গায়ে বড়ো লোম থাকা কীসের উদাহরণ?',a:'অভিযোজন',o:['মিউটেশন','জনন','অভিযোজন','প্রকরণ']},
-    {q:'জননকোশে জিনের আদানপ্রদানের ফলে কী সৃষ্টি হয়?',a:'নতুন প্রকরণ বা বৈচিত্র্য',o:['বিচ্ছিন্নতা','নতুন প্রকরণ বা বৈচিত্র্য','ক্রোমোজোমাল মিউটেশন','প্রাকৃতিক নির্বাচন']},
-    {q:'জীববৈচিত্র্য সৃষ্টির ধারাবাহিক ধাপে, প্রকরণ এক জনু থেকে পরবর্তী জনুতে কীসের মাধ্যমে স্থানান্তরিত হয়?',a:'জনন',o:['জনন','অভিযোজন','বিচ্ছিন্নতা','খাদ্যাভ্যাস']},
-    {q:'জীববৈচিত্র্য বলতে প্রধানত কোন কোন বিভিন্নতাকে বোঝায়?',a:'জিনগত ও প্রজাতিগত উভয়ই',o:['শুধুমাত্র জিনগত','শুধুমাত্র প্রজাতিগত','জিনগত ও প্রজাতিগত উভয়ই','আচরণগত']},
-    {q:'পৃথিবীর ভিন্ন ভিন্ন পরিবেশে জীবদের ধীরে ধীরে যে বিবর্তন ঘটে, তাকে কী বলে?',a:'অভিব্যক্তি',o:['প্রকরণ','অভিব্যক্তি','পরিব্যক্তি','বিচ্ছিন্নতা']},
-    {q:'কোনো একটি নির্দিষ্ট অঞ্চলে বসবাসকারী উদ্ভিদ, প্রাণী ও জীবাণুর প্রাচুর্যকে কী বলা হয়?',a:'জীববৈচিত্র্য',o:['প্রকরণ','পরিব্যক্তি','জীববৈচিত্র্য','অভিব্যক্তি']},
-    {q:'জিনের পরিবর্তনে যে মিউটেশন ঘটে, তাকে কী বলে?',a:'জিনগত মিউটেশন (Gene mutation)',o:['জিনগত মিউটেশন (Gene mutation)','ক্রোমোজোমাল মিউটেশন','প্রজাতিগত মিউটেশন','ভৌত মিউটেশন']},
-    {q:'ক্রোমোজোমের গঠন বা সংখ্যা পরিবর্তনের কারণে জীবে যে চারিত্রিক বৈশিষ্ট্য আসে, তাকে কী বলে?',a:'ক্রোমোজোমাল মিউটেশন',o:['জিনগত মিউটেশন','ক্রোমোজোমাল মিউটেশন','প্রকরণ','অভিযোজন']},
-    {q:'পৃথিবীর বিভিন্ন স্থানে জলবায়ু ও পরিবেশের সঙ্গে মানিয়ে নেওয়ার জন্য প্রাণীর যে পরিবর্তন হয়, তাকে কী বলে?',a:'অভিযোজন',o:['প্রকরণ','মিউটেশন','অভিযোজন','জনন']},
-    {q:'গায়ের রঙের তফাত বা চোখের রঙের পার্থক্য নিচের কোনটির উদাহরণ?',a:'প্রকরণ',o:['মিউটেশন','প্রকরণ','অভিযোজন','বিচ্ছিন্নতা']},
-    {q:'গ্যালাপাগোস দ্বীপপুঞ্জের ফিঞ্চ পাখিদের ভিন্ন ভিন্ন খাদ্যাভ্যাসের কারণ কী ছিল?',a:'ভৌগোলিক বিচ্ছিন্নতা',o:['ভৌগোলিক বিচ্ছিন্নতা','জলবায়ুর পরিবর্তন','শিকারির আক্রমণ','পরিব্যক্তি']},
-    {q:'প্রকরণ জননকলায় ঘটলে তা কীরূপ হয়?',a:'বংশানুক্রমে সঞ্চারণশীল',o:['অস্থায়ী','বংশানুক্রমে সঞ্চারণশীল','ক্ষতিকারক','অপরিবর্তনশীল']},
-    {q:'প্রকৃতিতে কোনো নির্দিষ্ট অঞ্চলে বসবাসকারী জীবদের জিনগত ও প্রজাতিগত প্রাচুর্যকে কী বলা হয়?',a:'জীববৈচিত্র্য',o:['অভিযোজন','জীববৈচিত্র্য','পরিব্যক্তি','প্রকরণ']},
-    {q:'জননকোশগুলির মিলনের ফলে অপত্যের মধ্যে কীসের আবির্ভাব ঘটে?',a:'নতুন বৈচিত্র্য বা প্রকরণ',o:['নতুন বৈচিত্র্য বা প্রকরণ','মিউটেশন','বিচ্ছিন্নতা','রোগ']},
-    {q:'ক্রোমোজোমের গঠন বা সংখ্যার পরিবর্তনে জীবে নতুন বৈশিষ্ট্যের প্রকাশকে কী বলে?',a:'ক্রোমোজোমাল মিউটেশন',o:['জিনগত মিউটেশন','ক্রোমোজোমাল মিউটেশন','প্রাকৃতিক নির্বাচন','অভিযোজন']},
-    {q:'পরিব্যক্তি বা মিউটেশনের প্রধান ফলাফল কী?',a:'জীবে নতুন বৈশিষ্ট্যের আবির্ভাব',o:['প্রজাতির বিলুপ্তি','জীবে নতুন বৈশিষ্ট্যের আবির্ভাব','পরিযায়ী হওয়া','দেহের আকার হ্রাস']},
-    {q:'মানুষে মানুষে চুলের রঙ বা চোখের রঙের পার্থক্য জীববিজ্ঞানের ভাষায় কী?',a:'প্রকরণ বা ভেদ',o:['মিউটেশন','প্রকরণ বা ভেদ','অভিযোজন','বিচ্ছিন্নতা']},
-    {q:'সুউচ্চ পাহাড় বা বিস্তীর্ণ সমুদ্রের কারণে প্রজাতির আলাদাকরণকে কী বলে?',a:'বিচ্ছিন্নতা',o:['প্রকরণ','বিচ্ছিন্নতা','পরিব্যক্তি','প্রাকৃতিক নির্বাচন']},
-    {q:'গ্যালাপাগোস দ্বীপপুঞ্জের কোন পাখিদের মধ্যে খাদ্যাভ্যাসের কারণে গঠনগত বৈচিত্র্য দেখা যায়?',a:'ফিঞ্চ পাখি',o:['পায়রা','ময়ূর','ফিঞ্চ পাখি','পেঙ্গুইন']},
-    {q:'গ্যালাপাগোস দ্বীপপুঞ্জে পাতা ভক্ষণকারী ফিঞ্চ পাখিদের ঠোঁট কেমন হয়ে গিয়েছিল?',a:'লম্বা প্রকৃতির',o:['ছোটো ও মজবুত','লম্বা প্রকৃতির','বাঁকা','চওড়া']},
-    {q:'জীববৈচিত্র্য সৃষ্টির প্রথম ধাপে জননকোশে কীসের উৎপত্তি ঘটে?',a:'সঞ্চারণযোগ্য প্রকরণের',o:['খাদ্যাভ্যাসের','সঞ্চারণযোগ্য প্রকরণের','ক্রোমোজোমের','কোষপ্রাচীরের']},
-    {q:'ভিন্ন ভিন্ন পরিবেশে জীবের অনুকূল প্রকরণযুক্ত হয়ে ধীরগতিতে পরিবর্তনকে কী বলা হয়?',a:'অভিব্যক্তি বা বিবর্তন',o:['অভিব্যক্তি বা বিবর্তন','জনন','পরিব্যক্তি','সংকরায়ণ']},
-  ],
-  topic3: [
-    {q:'\'Biology\' শব্দটি কোন বিজ্ঞানী প্রথম ব্যবহার করেন?',a:'ল্যামার্ক',o:['লিনিয়াস','ল্যামার্ক','হ্যালডেন','ডারউইন']},
-    {q:'\'Biology\' শব্দটি কবে প্রথম নামকরণ করা হয়?',a:'১৮০১',o:['১৮০১','১৯০১','১৭৫৩','১৭৫৮']},
-    {q:'মানুষের উৎপত্তি, বিবর্তন ও সভ্যতা নিয়ে আলোচনা করা হয় কোন শাখায়?',a:'নৃবিদ্যা',o:['নৃবিদ্যা','প্রত্নজীববিদ্যা','বংশগতিবিদ্যা','আচরণবিদ্যা']},
-    {q:'জীববিদ্যা ও পরিসংখ্যানবিদ্যার সমন্বয়ে গঠিত শাখার নাম কী?',a:'বায়োমিতি',o:['বায়োনিক্স','বায়োমিতি','জীব-রসায়ন','জীব-পদার্থবিদ্যা']},
-    {q:'উচ্চ ফলনশীল ধানের বীজের উদাহরণ কোনটি?',a:'IR-8',o:['সোনালিকা','কল্যাণসোনা','IR-8','বিক্রম']},
-    {q:'উচ্চ ফলনশীল গমের বীজের উদাহরণ কোনটি?',a:'সোনালিকা',o:['জয়া','সোনালিকা','জগন্নাথ','জওহর']},
-    {q:'কৃত্রিম হরমোন প্রয়োগ করে কী ধরনের ফল উৎপাদন করা হয়?',a:'বীজবিহীন',o:['অধিক রসালো','বীজবিহীন','দ্রুত পচনশীল','বড়ো আকৃতির']},
-    {q:'উন্নত জাতের অধিক দুগ্ধপ্রদায়ী গাভীর উদাহরণ কোনটি?',a:'শাহিওয়াল',o:['খাকি ক্যাম্পবেল','সাদা লেগহর্ন','শাহিওয়াল','বিক্রম']},
-    {q:'মহাকাশযানে অক্সিজেন সরবরাহের জন্য কোন শৈবাল ব্যবহার করা হয়?',a:'ক্লোরেল্লা',o:['স্পাইরোগাইরা','ভলবক্স','ক্লোরেল্লা','ক্ল্যামাইডোমোনাস']},
-    {q:'সাপের কামড়ের ওষুধ তৈরি হয় কোনটি থেকে?',a:'অ্যান্টিভেনম সিরাম',o:['হাইড্রোফোবিনাম','অ্যান্টিভেনম সিরাম','পেনিসিলিন','ক্লোরোমাইসিন']},
-    {q:'মানব ইনসুলিনের কৃত্রিম প্রতিরূপ কোনটি?',a:'হিউমিলিন',o:['পেনিসিলিন','হিউমিলিন','ল্যাকেসিস','অ্যাজিথ্রোমাইসিন']},
-    {q:'পোলট্রি প্রতিপালন কোন জীববিদ্যার অন্তর্গত?',a:'ফলিত প্রাণীবিজ্ঞান',o:['বিশুদ্ধ প্রাণীবিজ্ঞান','বিশুদ্ধ উদ্ভিদবিজ্ঞান','ফলিত প্রাণীবিজ্ঞান','ফলিত উদ্ভিদবিজ্ঞান']},
-    {q:'\'Biology\' শব্দটির \'bios\' কথার অর্থ কী?',a:'জীবন',o:['অধ্যয়ন','জীবন','বিজ্ঞান','পরিবেশ']},
-    {q:'বিজ্ঞানের যে শাখায় প্রাচীনকালের ফসিল বা জীবাশ্ম নিয়ে আলোচনা করা হয়, তাকে কী বলে?',a:'প্রত্নজীববিদ্যা (Palaeontology)',o:['প্রত্নজীববিদ্যা (Palaeontology)','নৃবিদ্যা','কলাবিদ্যা','বাস্তুবিদ্যা']},
-    {q:'জীববিদ্যা এবং ইলেকট্রনিক্স-এর সহযোগে বিজ্ঞানের কোন শাখা গড়ে উঠেছে?',a:'বায়োনিক্স',o:['বায়োমিতি','বায়োনিক্স','বায়োফিজিক্স','বায়োকেমিস্ট্রি']},
-    {q:'জীবদেহের বিভিন্ন অঙ্গের অভ্যন্তরীণ গঠন নিয়ে জীববিদ্যার কোন শাখায় আলোচনা করা হয়?',a:'শারীরস্থান (Anatomy)',o:['শারীরবিদ্যা (Physiology)','শারীরস্থান (Anatomy)','কলাবিদ্যা','অনাক্রম্যবিদ্যা']},
-    {q:'জীবদেহের কলার (tissue) গঠন ও কাজ নিয়ে আলোচনা করা হয় কোন শাখায়?',a:'হিস্টোলজি (Histology)',o:['হিস্টোলজি (Histology)','ইকোলজি','বায়োমিতি','বিবর্তন']},
-    {q:'আধুনিক জীববিদ্যা ও প্রযুক্তিবিদ্যা মিলিয়ে কোন বিজ্ঞান গড়ে উঠেছে?',a:'জীবপ্রযুক্তিবিদ্যা (Biotechnology)',o:['জীবপ্রযুক্তিবিদ্যা (Biotechnology)','জীবভৌগোলিকবিদ্যা','নৃবিদ্যা','জীব-রসায়ন']},
-    {q:'উচ্চ ফলনশীল ভুট্টার একটি বীজের নাম কী?',a:'বিক্রম',o:['জয়া','বিক্রম','সোনালিকা','জগন্নাথ']},
-    {q:'দীর্ঘদিন তাজা থাকে এমন দীর্ঘজীবী টম্যাটো উৎপাদনে কোন বিদ্যার প্রয়োগ ঘটেছে?',a:'জীবপ্রযুক্তিবিদ্যা',o:['জীবপ্রযুক্তিবিদ্যা','প্রত্নজীববিদ্যা','কলাবিদ্যা','ফার্মাকোলজি']},
-    {q:'উন্নত জাতের খাকি ক্যাম্পবেল হাঁস প্রতিপালন কোন শাখার অন্তর্গত?',a:'পোলট্রি',o:['মৎস্যচাষ','রেশম চাষ','পোলট্রি','বনপালন']},
-    {q:'সাপের বিষ থেকে তৈরি অ্যান্টিভেনম সিরাম কীসের ওষুধ হিসেবে ব্যবহৃত হয়?',a:'সাপের কামড়',o:['জলাতঙ্ক','সাপের কামড়','টাইফয়েড','পোলিও']},
-    {q:'পেনিসিলিন, স্ট্রেপটোমাইসিন ইত্যাদি কী ধরনের ওষুধ?',a:'অ্যান্টিবায়োটিক',o:['ভ্যাকসিন','অ্যান্টিবায়োটিক','হরমোন','ভিটামিন']},
-    {q:'জেনেটিক ইঞ্জিনিয়ারিং-এর সাহায্যে মানুষের তৈরি কৃত্রিম ইনসুলিনের নাম কী?',a:'হিউমিলিন',o:['ল্যাকেসিস','হিউমিলিন','হাইড্রোফোবিনাম','ক্লোরোমাইসিন']},
-    {q:'রোগ প্রতিরোধ ক্ষমতা, অ্যান্টিজেন এবং অ্যান্টিবডি নিয়ে বিজ্ঞানের কোন শাখায় আলোচনা করা হয়?',a:'ইমিউনোলজি',o:['জেনেটিক্স','ইমিউনোলজি','প্যালিয়েন্টোলজি','অ্যানাটমি']},
-    {q:'কৃষিকার্যে রাসায়নিক পেস্ট দমনের বদলে বর্তমানে কোন পদ্ধতিতে কীটপতঙ্গ দমন করা হচ্ছে?',a:'জৈবিক পদ্ধতি',o:['যান্ত্রিক পদ্ধতি','জৈবিক পদ্ধতি','বৈদ্যুতিক পদ্ধতি','পারমাণবিক পদ্ধতি']},
-    {q:'নিচের কোনটি বিশুদ্ধ জীববিদ্যার একটি শাখা নয়?',a:'ফার্মাকোলজি',o:['কলাবিদ্যা','বংশগতিবিদ্যা','ফার্মাকোলজি','শারীরবিদ্যা']},
-    {q:'নিচের কোনটি ফলিত উদ্ভিদবিজ্ঞানের একটি শাখা?',a:'কৃষিবিদ্যা',o:['মৎস্যচাষ','কৃষিবিদ্যা','পোলট্রি','রেশম চাষ']},
-    {q:'রোগনির্ণয়কারী এবং রোগ প্রতিরোধ ক্ষমতা নিয়ে জীববিজ্ঞানের কোন শাখায় আলোচনা করা হয়?',a:'অনাক্রম্যবিদ্যা (Immunology)',o:['অনাক্রম্যবিদ্যা (Immunology)','বাস্তুবিদ্যা','কলাবিদ্যা','শারীরস্থান']},
-    {q:'ভূগোল ও ভূ-বিদ্যার সঙ্গে জীববিদ্যার সম্পর্ক নিয়ে কোন বিজ্ঞান গড়ে উঠেছে?',a:'জীবভৌগোলিকবিদ্যা',o:['জীব-পদার্থবিদ্যা','জীবভৌগোলিকবিদ্যা','নৃবিদ্যা','জীব-রসায়ন']},
-    {q:'\'পুসা\' ও \'জগন্নাথ\' কীসের উন্নত ফলনশীল বীজ?',a:'ধান',o:['গম','ভুট্টা','ধান','মটর']},
-    {q:'\'জনক\' কীসের একটি উন্নত ফলনশীল বীজ?',a:'গম',o:['ধান','গম','ভুট্টা','জোয়ার']},
-    {q:'\'কিষান\' ও \'জওহর\' কীসের উন্নত ফলনশীল বীজ?',a:'ভুট্টা',o:['গম','ধান','ভুট্টা','বার্লি']},
-    {q:'ভাইরাস প্রতিরোধী শস্য উৎপাদনে জীববিজ্ঞানের কোন শাখার প্রয়োগ ঘটে?',a:'জীবপ্রযুক্তিবিদ্যা (Biotechnology)',o:['ফার্মাকোলজি','জীবপ্রযুক্তিবিদ্যা (Biotechnology)','বায়োমিতি','নৃবিদ্যা']},
-    {q:'\'মুলতানি\' ও \'ভাগলপুরী\' কীসের উন্নত জাত?',a:'গাভী',o:['হাঁস','মুরগি','গাভী','ছাগল']},
-    {q:'\'সাদা লেগহর্ন\' কীসের উন্নত জাত?',a:'মুরগি',o:['মুরগি','হাঁস','গাভী','ভেড়া']},
-    {q:'সাপের বিষ থেকে তৈরি ওষুধ \'ল্যাকেসিস\' কোন চিকিৎসায় ব্যবহৃত হয়?',a:'সাপের কামড়ের ওষুধ হিসেবে',o:['সাপের কামড়ের ওষুধ হিসেবে','ম্যালেরিয়ার ওষুধ হিসেবে','জলাতঙ্কের প্রতিষেধক হিসেবে','অ্যান্টিবায়োটিক হিসেবে']},
-    {q:'पागल কুকুরের লালা থেকে তৈরি \'হাইড্রোফোবিনাম\' কীসের প্রতিষেধক?',a:'জলাতঙ্ক',o:['টাইফয়েড','ডিপথেরিয়া','জলাতঙ্ক','পোলিও']},
-    {q:'কৃত্রিম উপায়ে উৎপাদিত মানুষের ইনসুলিনের প্রতিরূপ \'হিউমিলিন\' কোন পদ্ধতিতে তৈরি?',a:'জেনেটিক ইঞ্জিনিয়ারিং',o:['সংকরায়ণ','জেনেটিক ইঞ্জিনিয়ারিং','ক্লোনিং','রাসায়নিক সংশ্লেষ']},
-    {q:'জীববিদ্যা অধ্যয়নের মাধ্যমে চারপাশের পরিবেশ ও প্রাণী সম্পর্কে আমাদের কী মেটানো সম্ভব?',a:'কৌতূহল',o:['ক্ষুধা','কৌতূহল','ভয়','কুসংস্কার']},
-    {q:'প্রাকৃতিক সম্পদের অপচয় রোধ সম্পর্কে মানুষের মধ্যে কী বৃদ্ধি করা জীববিদ্যার কাজ?',a:'সচেতনতা',o:['অবহেলা','সচেতনতা','ভীতি','আনন্দ']},
-    {q:'চিকিৎসাবিজ্ঞান, স্বাস্থ্য ও রোগনিবারণ সম্পর্কে উৎসাহী হওয়া কোন বিজ্ঞান অধ্যয়নের উদ্দেশ্য?',a:'জীববিদ্যা',o:['রসায়ন','পদার্থবিদ্যা','জীববিদ্যা','গণিত']},
-    {q:'বিশুদ্ধ উদ্ভিদবিজ্ঞান ও প্রাণীবিজ্ঞানের পাশাপাশি কলাবিদ্যা বা শারীরবিদ্যা কীসের অন্তর্গত?',a:'বিশুদ্ধ জীববিদ্যা',o:['ফলিত জীববিদ্যা','বিশুদ্ধ জীববিদ্যা','পদার্থবিদ্যা','নৃবিদ্যা']},
-    {q:'বনপালন (Forestry) কোন জীববিদ্যার অংশ?',a:'ফলিত উদ্ভিদবিজ্ঞান',o:['বিশুদ্ধ উদ্ভিদবিজ্ঞান','ফলিত উদ্ভিদবিজ্ঞান','ফলিত প্রাণীবিজ্ঞান','বিশুদ্ধ প্রাণীবিজ্ঞান']},
-    {q:'মৎস্যচাষ বা রেশম চাষ কোন শাখার অন্তর্গত?',a:'ফলিত প্রাণীবিজ্ঞান',o:['ফলিত প্রাণীবিজ্ঞান','ফলিত উদ্ভিদবিজ্ঞান','প্রত্নজীববিদ্যা','বংশগতিবিদ্যা']},
-    {q:'জীবের জিন ও বংশগতি নিয়ে বিজ্ঞানের কোন শাখায় আলোচনা করা হয়?',a:'জেনেটিক্স',o:['হিস্টোলজি','জেনেটিক্স','অ্যানাটমি','ইকোলজি']},
-    {q:'জীবের শারীরবৃত্তীয় কাজ বা বিভিন্ন অঙ্গের কার্যপ্রণালী নিয়ে কোন শাখায় পড়া হয়?',a:'শারীরবিদ্যা (Physiology)',o:['কলাবিদ্যা','শারীরবিদ্যা (Physiology)','অনাক্রম্যবিদ্যা','আচরণবিদ্যা']},
-    {q:'সাইবারনেটিক্স (Cybernetics) কোন দুটি বিজ্ঞানের মিশ্রণে তৈরি?',a:'জীববিদ্যা ও প্রযুক্তিবিদ্যা',o:['জীববিদ্যা ও রসায়ন','জীববিদ্যা ও প্রযুক্তিবিদ্যা','জীববিদ্যা ও ভূগোল','জীববিদ্যা ও ইলেকট্রনিক্স']},
-    {q:'কৃষিতে সংকরায়ণের মাধ্যমে সৃষ্ট উচ্চ ফলনশীল ধান \'IR-20\' ছাড়া আর কোনটি?',a:'জয়া',o:['সোনালিকা','কল্যাণসোনা','জয়া','জনক']},
-    {q:'জীবপ্রযুক্তির মাধ্যমে বর্তমানে কেমন বৈশিষ্ট্যের টম্যাটো উৎপাদন করা হচ্ছে?',a:'দীর্ঘজীবী',o:['দ্রুত পচনশীল','দীর্ঘজীবী','বীজহীন','বর্ণহীন']},
-    {q:'কৃষিতে রাসায়নিক পেস্ট দমনের বদলে এখন কোন পদ্ধতিতে কীটপতঙ্গ দমন করা সম্ভব হচ্ছে?',a:'জৈবিক পদ্ধতিতে',o:['জৈবিক পদ্ধতিতে','যান্ত্রিক পদ্ধতিতে','তেজস্ক্রিয় পদ্ধতিতে','ভৌত পদ্ধতিতে']},
-    {q:'ডিম ও মাংস উৎপাদনের জন্য হাঁস-মুরগির কোন উন্নত পদ্ধতি ব্যবহার করা হয়?',a:'পোলট্রি চাষ',o:['মৎস্যচাষ','রেশম চাষ','পোলট্রি চাষ','বনপালন']},
-    {q:'কৃত্রিম উপায়ে প্রচুর পরিমাণে মধু উৎপাদন করার জন্য কী পালন করা হয়?',a:'মৌমাছি',o:['রেশম পোকা','মৌমাছি','পোলট্রি','মাছ']},
-    {q:'বিভিন্ন ব্যাকটেরিয়া ও অণুজীব থেকে জীবনদায়ী কোন ওষুধ তৈরি হয়?',a:'অ্যান্টিবায়োটিক',o:['ইনসুলিন','ভ্যাকসিন','অ্যান্টিবায়োটিক','অ্যান্টিভেনম']},
-    {q:'বন্যা ও ভূমিক্ষয় রোধ, এবং তেল সন্ধানে কোন বিজ্ঞানের জ্ঞান ব্যবহার করা হয়?',a:'জীববিদ্যা',o:['জ্যোতির্বিজ্ঞান','পদার্থবিদ্যা','জীববিদ্যা','রসায়ন']},
-  ],
-  topic4: [
-    {q:'\'Taxonomy\' শব্দটি সর্বপ্রথম কে ব্যবহার করেন?',a:'ক্যানডোল',o:['লিনিয়াস','ক্যানডোল','ল্যামার্ক','হুইটেকার']},
-    {q:'Taxonomy শব্দের \'Taxis\' কথার অর্থ কী?',a:'বিন্যাস',o:['বিধি','বিন্যাস','জীব','জগত']},
-    {q:'বিন্যাসবিধির জনক কাকে বলা হয়?',a:'লিনিয়াস',o:['লিনিয়াস','অ্যারিস্টটল','থিওফ্রাস্টাস','প্লিনি']},
-    {q:'\'Systema Naturae\' বইটি কে লিখেছেন?',a:'লিনিয়াস',o:['থিওফ্রাস্টাস','ডারউইন','লিনিয়াস','প্লিনি']},
-    {q:'\'Historia Plantarum\' বইটি কার লেখা?',a:'থিওফ্রাস্টাস',o:['অ্যারিস্টটল','থিওফ্রাস্টাস','সুশ্রুত','লিনিয়াস']},
-    {q:'ট্যাক্সোনমির মূল উপাদান কয়টি?',a:'৩',o:['২','৩','৪','৫']},
-    {q:'লিনিয়ান হায়ারার্কিতে মোট কয়টি ধাপ আছে?',a:'৭',o:['৫','৬','৭','৮']},
-    {q:'লিনিয়ান হায়ারার্কির সর্বোচ্চ ধাপ কোনটি?',a:'রাজ্য',o:['প্রজাতি','গণ','পর্ব','রাজ্য']},
-    {q:'লিনিয়ান হায়ারার্কির সর্বনিম্ন ধাপ কোনটি?',a:'প্রজাতি',o:['পর্ব','শ্রেণি','গণ','প্রজাতি']},
-    {q:'মানুষের বিজ্ঞানসম্মত নামে গণ (Genus) কোনটি?',a:'Homo',o:['Homo','sapiens','Animalia','Chordata']},
-    {q:'ICBN এর সম্পূর্ণ নাম কী?',a:'International Code of Botanical Nomenclature',o:['Indian Code of Botanical Nomenclature','International Code of Botanical Nomenclature','International Code of Biological Nomenclature','International Council of Botanical Nomenclature']},
-    {q:'দ্বিপদ নামকরণে কোন ভাষা ব্যবহার করা হয়?',a:'ল্যাটিন',o:['গ্রিক','ইংরেজি','ল্যাটিন','ফরাসি']},
-    {q:'দ্বিপদ নামকরণে প্রথম পদটি কী নির্দেশ করে?',a:'গণ',o:['প্রজাতি','গোত্র','গণ','পর্ব']},
-    {q:'আম গাছের গোত্র বা Family কোনটি?',a:'অ্যানাকার্ডিয়েসি',o:['ম্যাঙ্গিফেরা','অ্যানাকার্ডিয়েসি','স্যাপিনডেলিস','প্লান্টি']},
-    {q:'মটর গাছের বিজ্ঞানসম্মত নাম কী?',a:'Pisum sativum',o:['Oryza sativa','Ficus benghalensis','Pisum sativum','Nelumbo nucifera']},
-    {q:'বাঘের বিজ্ঞানসম্মত নাম কী?',a:'Panthera tigris',o:['Panthera leo','Panthera tigris','Felis domesticus','Pavo cristatus']},
-    {q:'ছাপার সময় বিজ্ঞানসম্মত নাম কোন হরফে লেখা হয়?',a:'ইটালিক',o:['বোল্ড','ইটালিক','আন্ডারলাইন','সাধারণ']},
-    {q:'\'Taxonomy\' শব্দের \'Nomos\' কথার অর্থ কী?',a:'বিধি বা নিয়ম',o:['বিন্যাস','প্রাণী','উদ্ভিদ','বিধি বা নিয়ম']},
-    {q:'লিনিয়াসের পূর্বে অ্যারিস্টটল প্রাণীজগতকে কয়টি ভাগে বিভক্ত করেছিলেন?',a:'চারটি',o:['দুটি','তিনটি','চারটি','পাঁচটি']},
-    {q:'প্রাচীন বৈদিক সাহিত্যে প্রায় কতটি উদ্ভিদের উল্লেখ পাওয়া যায়?',a:'৭৪০টি',o:['২৫০টি','৫০০টি','৭৪০টি','১০০০টি']},
-    {q:'প্রাচীন সুশ্রুত সংহিতায় জীবকে কোন দুটি ভাগে বিভক্ত করা হয়েছিল?',a:'স্থাবর এবং জঙ্গম',o:['একবীজপত্রী ও দ্বিবীজপত্রী','স্থাবর এবং জঙ্গম','মেরুদণ্ডী ও অমেরুদণ্ডী','জলজ ও স্থলজ']},
-    {q:'প্লিনি দ্য এলডার কোন গ্রন্থে প্রথম কৃত্রিম শ্রেণিবিন্যাসের প্রচলন করেন?',a:'Naturalis Historia',o:['Systema Naturae','Species Plantarum','Historia Plantarum','Naturalis Historia']},
-    {q:'ক্যারোলাস লিনিয়াস তাঁর \'Species Plantarum\' গ্রন্থে কতটি উদ্ভিদ প্রজাতির উল্লেখ করেন?',a:'৫৯০০টি',o:['৪২০০টি','৫৯০০টি','৭৪০০টি','১০০০০টি']},
-    {q:'লিনিয়াস তাঁর \'Systema Naturae\' গ্রন্থে কতটি প্রাণী প্রজাতির উল্লেখ করেন?',a:'৪২০০টি',o:['৪২০০টি','৫৯০০টি','৭৪০০টি','১০০০০টি']},
-    {q:'ট্যাক্সোনমির কোন উপাদানে জীবের পৃথক পৃথক নাম আরোপ করা হয়?',a:'নামকরণ',o:['শনাক্তকরণ','নামকরণ','শ্রেণিবিন্যাস','হায়ারার্কি']},
-    {q:'ট্যাক্সোনমিক হায়ারার্কি পদ্ধতি প্রথম কে প্রবর্তন করেন?',a:'ক্যারোলাস লিনিয়াস',o:['থিওফ্রাস্টাস','ডারউইন','ক্যারোলাস লিনিয়াস','প্লিনি']},
-    {q:'লিনিয়ান হায়ারার্কিতে \'গণ\' (Genus)-এর ঠিক ওপরের ধাপ কোনটি?',a:'গোত্র (Family)',o:['প্রজাতি','গোত্র (Family)','বর্গ (Order)','শ্রেণি (Class)']},
-    {q:'লিনিয়ান হায়ারার্কিতে \'বর্গ\' (Order)-এর ঠিক ওপরের ধাপ কোনটি?',a:'শ্রেণি (Class)',o:['গোত্র','শ্রেণি (Class)','পর্ব','রাজ্য']},
-    {q:'মানুষের হায়ারার্কিতে \'Hominidae\' কী নির্দেশ করে?',a:'গোত্র',o:['পর্ব','শ্রেণি','গোত্র','গণ']},
-    {q:'আম গাছের হায়ারার্কিতে \'Anacardiaceae\' কী নির্দেশ করে?',a:'গোত্র',o:['বর্গ','গোত্র','গণ','প্রজাতি']},
-    {q:'ICZN-এর সম্পূর্ণ নাম কী?',a:'International Code of Zoological Nomenclature',o:['International Code of Zoological Nomenclature','Indian Code of Zoological Nomenclature','International Center for Zoological Nomenclature','International Council of Zoology Nomenclature']},
-    {q:'বিজ্ঞানসম্মত নাম হাতে লেখার সময় নামকরণের কী নিয়ম মানতে হয়?',a:'গণ ও প্রজাতির নিচে আলাদা দাগ টানতে হয়',o:['ইটালিক করে লিখতে হয়','গণ ও প্রজাতির নিচে আলাদা দাগ টানতে হয়','সম্পূর্ণ বড়ো হাতের অক্ষরে লিখতে হয়','শুধু গণের নিচে দাগ দিতে হয়']},
-    {q:'বিজ্ঞানী Simpson (1961)-এর মতে ট্যাক্সোনমি কী?',a:'শ্রেণিবিন্যাসের নিয়ম, রীতিনীতি ও পদ্ধতিসহ তাত্ত্বিক জ্ঞান',o:['জীবের শনাক্তকরণ','শ্রেণিবিন্যাসের নিয়ম, রীতিনীতি ও পদ্ধতিসহ তাত্ত্বিক জ্ঞান','কেবল নামকরণের নিয়ম','জীবের বিবর্তনের ইতিহাস']},
-    {q:'ছান্দোগ্য উপনিষদে প্রাণীদের কোন তিনটি পর্যায়ে বিভক্ত করা হয়েছিল?',a:'জরায়ুজ, অণ্ডজ ও উদ্ভিজ্জ',o:['স্থাবর, জঙ্গম, অচল','জরায়ুজ, অণ্ডজ ও উদ্ভিজ্জ','বনস্পতি, বৃক্ষ, বীরুৎ','জলজ, স্থলজ, খেচর']},
-    {q:'সুশ্রুত সংহিতায় স্থাবর বলতে কাদের বোঝানো হয়েছে?',a:'প্রধানত অচল উদ্ভিদ',o:['সচল প্রাণী','প্রধানত অচল উদ্ভিদ','অনুজীব','জীবাশ্ম']},
-    {q:'সুশ্রুত সংহিতায় জঙ্গম বলতে কাদের বোঝানো হয়েছে?',a:'প্রধানত সচল প্রাণী',o:['প্রধানত সচল প্রাণী','অচল উদ্ভিদ','ছত্রাক','এককোষী জীব']},
-    {q:'হিপোক্রেটিস ও অ্যারিস্টটল প্রাণীদের কোন চারটি ভাগে বিভক্ত করেন?',a:'পতঙ্গ, পাখি, মাছ, হাঙর',o:['স্তন্যপায়ী, উভচর, সরীসৃপ, পক্ষী','পতঙ্গ, পাখি, মাছ, হাঙর','জরায়ুজ, অণ্ডজ, উদ্ভিজ্জ, অচল','তৃণভোজী, মাংসাশী, সর্বভুক, মৃতজীবী']},
-    {q:'ক্যারোলাস লিনিয়াস কত খ্রিস্টাব্দে \'Systema Naturae\' (দশম সংস্করণ) গ্রন্থটি প্রকাশ করেন?',a:'১৭৫৮',o:['১৭৫৩','১৭৫৮','১৮০১','১৯৬১']},
-    {q:'আধুনিককালে বিজ্ঞানী Simpson ট্যাক্সোনমিক হায়ারার্কিতে কতটি ধাপের কথা উল্লেখ করেছেন?',a:'২১টি',o:['৭টি','১০টি','১৪টি','২১টি']},
-    {q:'জীবের শ্রেণিবিন্যাসে \'বর্গ\' (Order) কাদের নিয়ে গঠিত হয়?',a:'কয়েকটি গোত্র নিয়ে',o:['কয়েকটি শ্রেণি নিয়ে','কয়েকটি গোত্র নিয়ে','কয়েকটি গণ নিয়ে','কয়েকটি প্রজাতি নিয়ে']},
-    {q:'জীবের শ্রেণিবিন্যাসে \'শ্রেণি\' (Class) কাদের নিয়ে গঠিত হয়?',a:'কয়েকটি বর্গ নিয়ে',o:['কয়েকটি পর্ব নিয়ে','কয়েকটি বর্গ নিয়ে','কয়েকটি গোত্র নিয়ে','কয়েকটি গণ নিয়ে']},
-    {q:'মানুষের হায়ারার্কিতে \'Primates\' কী নির্দেশ করে?',a:'বর্গ (Order)',o:['শ্রেণি (Class)','বর্গ (Order)','গোত্র (Family)','গণ (Genus)']},
-    {q:'আম গাছের হায়ারার্কিতে \'Dicotyledoneae\' কী নির্দেশ করে?',a:'শ্রেণি',o:['পর্ব','শ্রেণি','বর্গ','গোত্র']},
-    {q:'আম গাছের হায়ারার্কিতে \'Sapindales\' কী নির্দেশ করে?',a:'বর্গ',o:['শ্রেণি','বর্গ','গোত্র','গণ']},
-    {q:'আম গাছের দ্বিপদ নামে প্রজাতির নাম কী?',a:'indica',o:['Mangifera','indica','Plantae','Angiosperm']},
-    {q:'একাধিক নামের ক্ষেত্রে সর্বপ্রথম দেওয়া বিজ্ঞানসম্মত নামটিকে গ্রহণ করার নীতিকে কী বলে?',a:'অগ্রাধিকার আইন (Law of priority)',o:['অগ্রাধিকার আইন (Law of priority)','আন্তর্জাতিক আইন','দ্বিপদ আইন','লিনিয়াস আইন']},
-    {q:'\'অগ্রাধিকার আইন\' অনুযায়ী কোন সালের আগের দেওয়া নাম গ্রাহ্য হবে না?',a:'১৭৫৩',o:['১৭০০','১৭৫৩','১৭৫৮','১৮০১']},
-    {q:'জবার বিজ্ঞানসম্মত নাম কী?',a:'Hibiscus rosa sinensis',o:['Nelumbo nucifera','Hibiscus rosa sinensis','Oryza sativa','Ficus benghalensis']},
-    {q:'পদ্মের বিজ্ঞানসম্মত নাম কী?',a:'Nelumbo nucifera',o:['Nelumbo nucifera','Pisum sativum','Ficus benghalensis','Mangifera indica']},
-    {q:'বটের বিজ্ঞানসম্মত নাম কী?',a:'Ficus benghalensis',o:['Pavo cristatus','Ficus benghalensis','Oryza sativa','Cavia porcellus']},
-    {q:'গিনিপিগের বিজ্ঞানসম্মত নাম কী?',a:'Cavia porcellus',o:['Panthera leo','Cavia porcellus','Pavo cristatus','Homo sapiens']},
-    {q:'ট্যাক্সোনমি জীববিজ্ঞানের কেমন ধরনের শাখা?',a:'প্রাচীনতম',o:['আধুনিকতম','প্রাচীনতম','অপ্রাসঙ্গিক','শুধুমাত্র উদ্ভিদবিদ্যা নির্ভর']},
-    {q:'অগাস্টিন পি. দ্য ক্যানডোল প্রথম কোন শব্দটি ব্যবহার করেন?',a:'Taxonomy',o:['Biology','Taxonomy','Genetics','Ecology']},
-    {q:'বৈদিক সাহিত্যে প্রায় কতটি প্রাণীর উল্লেখ পাওয়া যায়?',a:'২৫০টি',o:['২৫০টি','৭৪০টি','১০০০টি','৪২০০টি']},
-    {q:'ছান্দোগ্য উপনিষদে প্রাণীদের কোন তিনটি ভাগে ভাগ করা হয়েছে?',a:'জরায়ুজ, অণ্ডজ ও উদ্ভিজ্জ',o:['জলজ, স্থলজ, বায়বীয়','জরায়ুজ, অণ্ডজ ও উদ্ভিজ্জ','মাংসাশী, তৃণভোজী, সর্বভুক','মেরুদণ্ডী ও অমেরুদণ্ডী']},
-    {q:'প্রাচীন ভারতের কোন গ্রন্থে জীবকে স্থাবর এবং জঙ্গম হিসেবে বিভক্ত করা হয়েছিল?',a:'সুশ্রুত সংহিতা',o:['বৈদিক সাহিত্য','সুশ্রুত সংহিতা','চরক সংহিতা','ছান্দোগ্য উপনিষদ']},
-    {q:'অ্যারিস্টটল প্রাণীজগতকে পতঙ্গ, পাখি, মাছ ছাড়া আর কোন ভাগে বিভক্ত করেন?',a:'হাঙর',o:['স্তন্যপায়ী','সরীসৃপ','হাঙর','উভচর']},
-    {q:'ট্যাক্সোনমির তিনটি মূল উপাদানের মধ্যে জীবের গোষ্ঠীভুক্তকরণকে কী বলে?',a:'শ্রেণিবিন্যাস',o:['শনাক্তকরণ','নামকরণ','শ্রেণিবিন্যাস','হায়ারার্কি']},
-    {q:'শ্রেণিবিন্যাসের যে কাঠামোতে নিচের স্তরের গোষ্ঠী ওপরের স্তরে অন্তর্ভুক্ত হয়, তাকে কী বলে?',a:'হায়ারার্কিয়াল শ্রেণিবিন্যাস',o:['দ্বিপদ নামকরণ','হায়ারার্কিয়াল শ্রেণিবিন্যাস','অগ্রাধিকার আইন','কৃত্রিম শ্রেণিবিন্যাস']},
-    {q:'লিনিয়ান হায়ারার্কিতে \'রাজ্য\' (Kingdom)-এর ঠিক নিচের ধাপটি কী?',a:'পর্ব (Phylum)',o:['পর্ব (Phylum)','শ্রেণি (Class)','বর্গ (Order)','গোত্র (Family)']},
-    {q:'হায়ারার্কিতে পরস্পর সাদৃশ্যযুক্ত কয়েকটি প্রজাতি নিয়ে কী গঠিত হয়?',a:'গণ (Genus)',o:['গোত্র','গণ (Genus)','বর্গ','শ্রেণি']},
-    {q:'একাধিক শ্রেণি (Class) মিলে হায়ারার্কিতে কী গঠন করে?',a:'পর্ব (Phylum)',o:['বর্গ','গণ','পর্ব (Phylum)','রাজ্য']},
-    {q:'মানুষের শ্রেণিবিন্যাসে \'Mammalia\' কী নির্দেশ করে?',a:'শ্রেণি',o:['রাজ্য','পর্ব','শ্রেণি','গোত্র']},
-    {q:'মানুষের বিজ্ঞানসম্মত নামে প্রজাতির (Species) নাম কী?',a:'sapiens',o:['Homo','sapiens','Primates','Hominidae']},
-    {q:'আম গাছের বিজ্ঞানসম্মত নামে \'Mangifera\' কী নির্দেশ করে?',a:'গণ',o:['প্রজাতি','গণ','গোত্র','পর্ব']},
-    {q:'International Code of Botanical Nomenclature (ICBN) কাদের নামকরণের নিয়ম?',a:'উদ্ভিদের',o:['প্রাণীদের','উদ্ভিদের','ভাইরাসের','ব্যাকটেরিয়ার']},
-    {q:'দ্বিপদ নামকরণে গণের নামের প্রথম অক্ষর সবসময় কেমন অক্ষরে লিখতে হয়?',a:'বড়ো হাতের (Capital letter)',o:['ছোটো হাতের (Small letter)','বড়ো হাতের (Capital letter)','রোমান হরফে','গ্রিক হরফে']},
-    {q:'কোন পাখির বিজ্ঞানসম্মত নাম \'Pavo cristatus\'?',a:'ময়ূর',o:['পায়রা','ময়ূর','চড়ুই','কাক']},
-    {q:'সিংহের বিজ্ঞানসম্মত নাম কী?',a:'Panthera leo',o:['Panthera tigris','Panthera leo','Felis domesticus','Cavia porcellus']},
-  ],
-  topic5: [
-    {q:'পাঁচ রাজ্য শ্রেণিবিন্যাস কে প্রবর্তন করেন?',a:'হুইটেকার',o:['লিনিয়াস','ক্যানডোল','হুইটেকার','ল্যামার্ক']},
-    {q:'হুইটেকার কত সালে পাঁচ রাজ্য শ্রেণিবিন্যাস প্রবর্তন করেন?',a:'১৯৬৯',o:['১৭৫৩','১৮০১','১৯৬১','১৯৬৯']},
-    {q:'প্রোক্যারিওটিক কোশযুক্ত এককোষী জীবেরা কোন রাজ্যের অন্তর্গত?',a:'মনেরা',o:['মনেরা','প্রোটিস্টা','ফানজি','প্ল্যান্টি']},
-    {q:'ইউক্যারিওটিক এককোষী জীবেরা কোন রাজ্যের অন্তর্গত?',a:'প্রোটিস্টা',o:['মনেরা','প্রোটিস্টা','ফানজি','প্ল্যান্টি']},
-    {q:'কোন রাজ্যের জীবদের কোষপ্রাচীর \'কাইটিন\' দিয়ে তৈরি?',a:'ফানজি',o:['মনেরা','প্রোটিস্টা','ফানজি','প্ল্যান্টি']},
-    {q:'ফানজি বা ছত্রাকের সঞ্চিত খাদ্য কী?',a:'গ্লাইকোজেন',o:['শ্বেতসার','গ্লাইকোজেন','ফ্যাট','প্রোটিন']},
-    {q:'সালোকসংশ্লেষে সক্ষম বহুকোষী জীবেরা কোন রাজ্যের অন্তর্গত?',a:'প্ল্যান্টি',o:['অ্যানিম্যালিয়া','ফানজি','প্ল্যান্টি','প্রোটিস্টা']},
-    {q:'কোন রাজ্যের জীবদের কোষে সেন্ট্রিওল থাকে এবং কোষপ্রাচীর থাকে না?',a:'অ্যানিম্যালিয়া',o:['প্ল্যান্টি','ফানজি','প্রোটিস্টা','অ্যানিম্যালিয়া']},
-    {q:'ব্যাকটেরিয়া কোন রাজ্যের অন্তর্ভুক্ত?',a:'মনেরা',o:['মনেরা','প্রোটিস্টা','ফানজি','প্ল্যান্টি']},
-    {q:'অ্যামিবা ও ম্যালেরিয়ার জীবাণু কোন রাজ্যের অন্তর্গত?',a:'প্রোটিস্টা',o:['মনেরা','প্রোটিস্টা','অ্যানিম্যালিয়া','প্ল্যান্টি']},
-    {q:'ইস্ট ও ব্যাঙের ছাতা কোন রাজ্যের অন্তর্গত?',a:'ফানজি',o:['ফানজি','প্ল্যান্টি','প্রোটিস্টা','মনেরা']},
-    {q:'কোন রাজ্যের জীবেরা বাস্তুতন্ত্রে প্রধানত বিয়োজকের ভূমিকা পালন করে?',a:'ফানজি',o:['প্ল্যান্টি','অ্যানিম্যালিয়া','প্রোটিস্টা','ফানজি']},
-    {q:'প্রাণী কোষের পুষ্টি পদ্ধতি কীরূপ?',a:'হোলোজোয়িক',o:['স্বভোজী','মৃতজীবী','পরজীবী','হোলোজোয়িক']},
-    {q:'স্পাইরোগাইরা, মস ও ফার্ন কোন রাজ্যের উদাহরণ?',a:'প্ল্যান্টি',o:['ফানজি','প্ল্যান্টি','প্রোটিস্টা','মনেরা']},
-    {q:'পাঁচ রাজ্য শ্রেণিবিন্যাসে কাদের অন্তর্ভুক্ত করা সম্ভব হয়নি?',a:'ভাইরাস',o:['ছত্রাক','শৈবাল','ভাইরাস','ব্যাকটেরিয়া']},
-    {q:'বিজ্ঞানী হুইটেকার কোন বিষয়ের ওপর ভিত্তি করে পাঁচ রাজ্য শ্রেণিবিন্যাস করেন?',a:'পুষ্টির ধরন ও কোশীয় গঠন',o:['শুধুমাত্র কোষের আকার','পুষ্টির ধরন ও কোশীয় গঠন','শুধুমাত্র জনন পদ্ধতি','শুধুমাত্র বাসস্থান']},
-    {q:'মনেরা রাজ্যের জীবদের কোষপ্রাচীর প্রধানত কী দিয়ে তৈরি হয়?',a:'পেপটাইডোগ্লাইক্যান ও পলিস্যাকারাইড',o:['সেলুলোজ','কাইটিন','পেপটাইডোগ্লাইক্যান ও পলিস্যাকারাইড','লিপিড']},
-    {q:'মনেরা রাজ্যের জীবদের DNA কেমন অবস্থায় থাকে?',a:'আবরণবিহীন ও কুণ্ডলীকৃত',o:['হিস্টোন প্রোটিনযুক্ত','আবরণবিহীন ও কুণ্ডলীকৃত','রৈখিক','ক্রোমোজোম গঠনকারী']},
-    {q:'প্রোটিস্টা রাজ্যের জীবদের DNA-তে কোন প্রোটিন উপস্থিত থাকে?',a:'হিস্টোন প্রোটিন',o:['কেরাটিন','কোলাজেন','হিস্টোন প্রোটিন','অ্যাকটিন']},
-    {q:'ক্ল্যামাইডোমোনাস কোন রাজ্যের অন্তর্গত জীব?',a:'প্রোটিস্টা',o:['মনেরা','প্রোটিস্টা','ফানজি','প্ল্যান্টি']},
-    {q:'ফানজি বা ছত্রাক রাজ্যের জীবদের পুষ্টি পদ্ধতি প্রধানত কেমন?',a:'মৃতজীবী, পরজীবী ও মিথোজীবী',o:['স্বভোজী','হোলোজোয়িক','মৃতজীবী, পরজীবী ও মিথোজীবী','রাসায়নিক পরভোজী']},
-    {q:'ব্যাঙের ছাতা বা মাশরুম কোন রাজ্যের অন্তর্গত?',a:'ফানজি',o:['মনেরা','প্রোটিস্টা','প্ল্যান্টি','ফানজি']},
-    {q:'প্ল্যান্টি রাজ্যের জীবদের প্রধান সঞ্চিত খাদ্য কী কী?',a:'শ্বেতসার (স্টার্চ) ও ফ্যাট',o:['গ্লাইকোজেন ও প্রোটিন','শ্বেতসার (স্টার্চ) ও ফ্যাট','শুধুমাত্র গ্লুকোজ','কাইটিন']},
-    {q:'বাস্তুতন্ত্রে প্ল্যান্টি রাজ্যের জীবেরা প্রধানত কীসের ভূমিকা পালন করে?',a:'উৎপাদক',o:['খাদক','উৎপাদক','বিয়োজক','রূপান্তরকারক']},
-    {q:'কোন রাজ্যের জীবেরা কঠিন খাদ্য গ্রহণ করে অর্থাৎ হোলোজোয়িক পুষ্টি সম্পন্ন করে?',a:'অ্যানিম্যালিয়া',o:['প্রোটিস্টা','ফানজি','অ্যানিম্যালিয়া','প্ল্যান্টি']},
-    {q:'মানুষের বিজ্ঞানসম্মত নাম কী?',a:'Homo sapiens sapiens',o:['Homo sapiens sapiens','Felis domesticus','Mangifera indica','Panthera tigris']},
-    {q:'বিড়ালের বিজ্ঞানসম্মত নাম কী?',a:'Felis domesticus',o:['Canis familiaris','Felis domesticus','Cavia porcellus','Panthera leo']},
-    {q:'হুইটেকারের শ্রেণিবিন্যাসে প্রোক্যারিওটদের জন্য কোন পৃথক রাজ্যটি তৈরি হয়েছে?',a:'মনেরা',o:['প্রোটিস্টা','প্ল্যান্টি','মনেরা','অ্যানিম্যালিয়া']},
-    {q:'পাঁচটি রাজ্যের মধ্যে কাদের কোশীয় গঠন সবচেয়ে উন্নত ও জটিল প্রকৃতির?',a:'অ্যানিম্যালিয়া',o:['মনেরা','প্রোটিস্টা','ফানজি','অ্যানিম্যালিয়া']},
-    {q:'কোন রাজ্যের বিপাকীয় পথ প্রধানত সালোকসংশ্লেষ প্রক্রিয়ার মাধ্যমে খাদ্য তৈরির সাথে জড়িত?',a:'প্ল্যান্টি',o:['মনেরা','ফানজি','প্ল্যান্টি','প্রোটিস্টা']},
-    {q:'পেপটাইডোগ্লাইক্যান এবং পলিস্যাকারাইড দিয়ে কোন রাজ্যের জীবের কোষপ্রাচীর গঠিত?',a:'মনেরা',o:['প্রোটিস্টা','মনেরা','ফানজি','প্ল্যান্টি']},
-    {q:'মনেরা রাজ্যের কোশে কোনটি অনুপস্থিত থাকে?',a:'পর্দাবেষ্টিত কোশ অঙ্গাণু',o:['রাইবোজোম','কোষপ্রাচীর','পর্দাবেষ্টিত কোশ অঙ্গাণু','সাইটোপ্লাজম']},
-    {q:'প্রোটিস্টা রাজ্যের কোশগুলি কীরূপ প্রকৃতির?',a:'ইউক্যারিওটিক',o:['প্রোক্যারিওটিক','ইউক্যারিওটিক','মেসোক্যারিওটিক','অকোষীয়']},
-    {q:'ইউগ্লিনা ও ভলবক্স কোন রাজ্যের উদাহরণ?',a:'প্রোটিস্টা',o:['মনেরা','প্রোটিস্টা','ফানজি','প্ল্যান্টি']},
-    {q:'কোন রাজ্যের জীবেরা ক্লোরোফিলবিহীন বা রঞ্জক উৎপাদনকারী বহুকোষী ইউক্যারিওটিক?',a:'ফানজি',o:['প্রোটিস্টা','প্ল্যান্টি','ফানজি','অ্যানিম্যালিয়া']},
-    {q:'মিউকর কোন রাজ্যের অন্তর্গত জীব?',a:'ফানজি',o:['ফানজি','প্রোটিস্টা','মনেরা','প্ল্যান্টি']},
-    {q:'ফানজি (Fungi) রাজ্যের এককোষী জীবের একটি উদাহরণ দাও।',a:'ইস্ট (Saccharomyces cerevisiae)',o:['মিউকর','ইস্ট (Saccharomyces cerevisiae)','ব্যাঙের ছাতা','অ্যামিবা']},
-    {q:'অ্যানিম্যালিয়া রাজ্যের কোশে কোনটি বর্তমান থাকে, যা উদ্ভিদ কোশে থাকে না?',a:'সেন্ট্রিওল',o:['ক্লোরোপ্লাস্ট','কোষপ্রাচীর','সেন্ট্রিওল','প্লাসটিড']},
-    {q:'পোগোনেটাম (Pogonatum) ও ড্রায়োপটেরিস কোন রাজ্যের উদাহরণ?',a:'প্ল্যান্টি',o:['ফানজি','প্ল্যান্টি','প্রোটিস্টা','মনেরা']},
-    {q:'কোন রাজ্যের জীবেরা বাস্তুতন্ত্রে উৎপাদকের ভূমিকা পালন করে?',a:'প্ল্যান্টি',o:['মনেরা','ফানজি','প্ল্যান্টি','অ্যানিম্যালিয়া']},
-    {q:'পাঁচ রাজ্য শ্রেণিবিন্যাসে এককোষী এবং বহুকোষী ছত্রাকের মধ্যে সুস্পষ্ট পার্থক্য না থাকাটা কী নির্দেশ করে?',a:'অসুবিধা বা ত্রুটি',o:['সুবিধা','অসুবিধা বা ত্রুটি','বৈশিষ্ট্য','কোনোটিই নয়']},
-    {q:'বিজ্ঞানী হুইটেকারের পাঁচ রাজ্য শ্রেণিবিন্যাসে পুষ্টির ধরন ছাড়া আর কোন বিষয়ের ওপর ভিত্তি করা হয়েছিল?',a:'জীবদেহ গঠনের জটিলতা',o:['শুধুমাত্র জনন','জীবদেহ গঠনের জটিলতা','শুধুমাত্র শ্বাসকার্য','শুধুমাত্র বাসস্থান']},
-    {q:'মনেরা রাজ্যের জীবদের পুষ্টি সাধারণত কোন প্রকৃতির হয়?',a:'মৃতজীবী, পরজীবী ও মিথোজীবী',o:['শুধুমাত্র স্বভোজী','মৃতজীবী, পরজীবী ও মিথোজীবী','হোলোজোয়িক','স্যাপ্রোফাইট']},
-    {q:'স্ট্যাফাইলোকক্কাস অরিয়াস (Staphylococcus aureus) কোন রাজ্যের অন্তর্গত জীব?',a:'মনেরা',o:['প্রোটিস্টা','মনেরা','ফানজি','অ্যানিম্যালিয়া']},
-    {q:'ম্যালেরিয়ার জীবাণু (Plasmodium vivax) কোন রাজ্যের অন্তর্গত?',a:'প্রোটিস্টা',o:['মনেরা','প্রোটিস্টা','ফানজি','প্ল্যান্টি']},
-    {q:'ফানজি বা ছত্রাক রাজ্যের জীবেরা কেন সালোকসংশ্লেষ করতে পারে না?',a:'এরা ক্লোরোফিলবিহীন',o:['এদের পাতা নেই','এরা ক্লোরোফিলবিহীন','এদের মূল নেই','এরা জলে থাকে']},
-    {q:'হোয়াইট বাটন মাশরুম (Agaricus bisporus) কোন রাজ্যের উদাহরণ?',a:'ফানজি বা ছত্রাক',o:['মনেরা','ফানজি বা ছত্রাক','প্ল্যান্টি','প্রোটিস্টা']},
-    {q:'প্ল্যান্টি রাজ্যের জীবদের দেহে সঞ্চিত খাদ্যবস্তু শ্বেতসার ছাড়া আর কী?',a:'ফ্যাট',o:['প্রোটিন','ফ্যাট','গ্লাইকোজেন','কাইটিন']},
-    {q:'অ্যানিম্যালিয়া বা প্রাণী রাজ্যের কোশে কোন কোশ অঙ্গাণুটি থাকে যা উদ্ভিদ কোশে থাকে না?',a:'সেন্ট্রিওল',o:['ক্লোরোপ্লাস্ট','সেন্ট্রিওল','মাইটোকন্ড্রিয়া','রাইবোজোম']},
-    {q:'স্পঞ্জ এবং হাইড్రా কোন রাজ্যের অন্তর্গত?',a:'অ্যানিম্যালিয়া বা প্রাণী',o:['প্রোটিস্টা','অ্যানিম্যালিয়া বা প্রাণী','প্ল্যান্টি','ফানজি']},
-    {q:'বাস্তুতন্ত্রে উৎপাদক হিসেবে প্রধান ভূমিকা পালন করে কোন রাজ্য?',a:'প্ল্যান্টি',o:['মনেরা','ফানজি','প্ল্যান্টি','অ্যানিম্যালিয়া']},
-    {q:'বাস্তুতন্ত্রে খাদকের (Consumer) ভূমিকা পালন করে কোন রাজ্যের জীবেরা?',a:'অ্যানিম্যালিয়া',o:['মনেরা','প্রোটিস্টা','ফানজি','অ্যানিম্যালিয়া']},
-    {q:'কোন রাজ্যের বিপাকীয় প্রক্রিয়া অত্যন্ত সরল এবং সাইটোপ্লাজমে সম্পন্ন হয়?',a:'মনেরা',o:['মনেরা','ফানজি','প্ল্যান্টি','অ্যানিম্যালিয়া']},
-    {q:'পাঁচ রাজ্য শ্রেণিবিন্যাসে কোন জীবদের অন্তর্ভুক্ত করা সম্ভব হয়নি?',a:'ভাইরাস',o:['ব্যাকটেরিয়া','ছত্রাক','ভাইরাস','শৈবাল']},
-  ],
-  topic6: [
-    {q:'উদ্ভিদ রাজ্যকে প্রধানত কয়টি উপরাজ্যে ভাগ করা হয়?',a:'২',o:['২','৩','৪','৫']},
-    {q:'ফুল, ফল ও বীজ গঠিত হয় না কাদের?',a:'ক্রিপটোগ্যামি',o:['ফ্যানেরোগ্যামি','ক্রিপটোগ্যামি','ব্যক্তবীজী','গুপ্তবীজী']},
-    {q:'সমাঙ্গদেহী বা থ্যালয়েড প্রকৃতির উদ্ভিদ কোনটি?',a:'শৈবাল',o:['শৈবাল','মস','ফার্ন','ব্যক্তবীজী']},
-    {q:'কোন উদ্ভিদে প্রকৃত মূলের পরিবর্তে \'রাইজয়েড\' থাকে?',a:'ব্রায়োফাইটা (মস)',o:['শৈবাল','ব্রায়োফাইটা (মস)','টেরিডোফাইটা','গুপ্তবীজী']},
-    {q:'ফার্ন বা টেরিডোফাইটা উদ্ভিদের পাতাকে কী বলে?',a:'ফ্রন্ড',o:['থ্যালাস','রাইজয়েড','ফ্রন্ড','রাইজোম']},
-    {q:'কোন উদ্ভিদের ফল গঠিত হয় না, বীজ নগ্ন প্রকৃতির হয়?',a:'জিমনোস্পার্ম',o:['টেরিডোফাইটা','জিমনোস্পার্ম','অ্যানজিওস্পার্ম','ব্রায়োফাইটা']},
-    {q:'সাইকাস ও পাইনাস কোন ধরনের উদ্ভিদ?',a:'ব্যক্তবীজী',o:['মস','ফার্ন','গুপ্তবীজী','ব্যক্তবীজী']},
-    {q:'একবীজপত্রী উদ্ভিদের মূল কীরূপ?',a:'অস্থানিক গুচ্ছমূল',o:['স্থানিক প্রধান মূল','অস্থানিক গুচ্ছমূল','রাইজয়েড','কোনোটিই নয়']},
-    {q:'জালিকাকার শিরাবিন্যাস কোন উদ্ভিদে দেখা যায়?',a:'দ্বিবীজপত্রী',o:['একবীজপত্রী','দ্বিবীজপত্রী','ব্যক্তবীজী','ফার্ন']},
-    {q:'ধানের বীজে কয়টি বীজপত্র থাকে?',a:'১টি',o:['১টি','২টি','৩টি','অসংখ্য']},
-    {q:'আম, মটর ও ছোলা কোন ধরনের উদ্ভিদ?',a:'দ্বিবীজপত্রী',o:['ব্যক্তবীজী','একবীজপত্রী','দ্বিবীজপত্রী','ফার্ন']},
-    {q:'\'স্পার্মাটোফাইট\' কাদের বলা হয়?',a:'বীজ উৎপাদনকারী উদ্ভিদ',o:['ফুল উৎপাদনকারী উদ্ভিদ','বীজ উৎপাদনকারী উদ্ভিদ','ফল উৎপাদনকারী উদ্ভিদ','অপুষ্পক উদ্ভিদ']},
-    {q:'সপুষ্পক উদ্ভিদের গোষ্ঠীকে একত্রে কী বলা হয়?',a:'ফ্যানেরোগ্যামি',o:['ক্রিপটোগ্যামি','ফ্যানেরোগ্যামি','ব্রায়োফাইটা','টেরিডোফাইটা']},
-    {q:'নিচের কোনটি অপুষ্পক উদ্ভিদ বা ক্রিপটোগ্যামি নয়?',a:'ব্যক্তবীজী',o:['শৈবাল','মস','ফার্ন','ব্যক্তবীজী']},
-    {q:'মস বা ব্রায়োফাইটা উদ্ভিদের দেহে জাইলেম ও ফ্লোয়েমের পরিবর্তে অনুন্নত সংবহন কলা হিসেবে কী থাকে?',a:'হাইড্রোম ও লেপটোম',o:['ফ্রন্ড','রাইজোম','হাইড্রোম ও লেপটোম','থ্যালাস']},
-    {q:'রিকসিয়া এবং ফিউনেরিয়া কোন জাতীয় উদ্ভিদের উদাহরণ?',a:'মস বা ব্রায়োফাইটা',o:['শৈবাল','মস বা ব্রায়োফাইটা','ফার্ন','ব্যক্তবীজী']},
-    {q:'ফার্ন বা টেরিডোফাইটা উদ্ভিদের ভূনিম্নস্থ কাণ্ডকে কী বলে?',a:'রাইজোম',o:['রাইজোম','রাইজয়েড','থ্যালাস','ফ্রন্ড']},
-    {q:'লাইকোপোডিয়াম এবং সুশনি শাক কোন উদ্ভিদের উদাহরণ?',a:'ফার্ন বা টেরিডোফাইটা',o:['শৈবাল','মস','ফার্ন বা টেরিডোফাইটা','গুপ্তবীজী']},
-    {q:'ব্যক্তবীজী উদ্ভিদের পাতা কয় প্রকারের হয়?',a:'দুই প্রকার (শল্কপত্র এবং পর্ণপত্র)',o:['এক প্রকার','দুই প্রকার (শল্কপত্র এবং পর্ণপত্র)','তিন প্রকার','পাতা থাকে না']},
-    {q:'সাইকাস এবং নিটাম কোন জাতীয় উদ্ভিদ?',a:'ব্যক্তবীজী (Gymnosperm)',o:['ফার্ন','ব্যক্তবীজী (Gymnosperm)','গুপ্তবীজী','মস']},
-    {q:'গুপ্তবীজী উদ্ভিদের শস্য সাধারণত কখন গঠিত হয়?',a:'দ্বি-নিষেকের পর',o:['গর্ভাধানের পূর্বে','দ্বি-নিষেকের পর','অঙ্কুরোদগমের সময়','কখনোই গঠিত হয় না']},
-    {q:'ধান, গম, ভুট্টা প্রভৃতি একবীজপত্রী উদ্ভিদের পাতা কেমন প্রকৃতির হয়?',a:'সমাঙ্কপৃষ্ঠ ও সমান্তরাল শিরাবিন্যাসযুক্ত',o:['জালিকাকার ও বিষমপৃষ্ঠ','সমাঙ্কপৃষ্ঠ ও সমান্তরাল শিরাবিন্যাসযুক্ত','শল্কপত্রযুক্ত','কাঁটায় রূপান্তরিত']},
-    {q:'দ্বিবীজপত্রী উদ্ভিদের কাণ্ড সাধারণত কেমন হয়?',a:'শাখাপ্রশাখাযুক্ত',o:['শাখাহীন','শাখাপ্রশাখাযুক্ত','রাইজোম প্রকৃতির','লতানো']},
-    {q:'একবীজপত্রী উদ্ভিদের জীবনকাল সাধারণত কেমন হয়?',a:'একবর্ষজীবী',o:['একবর্ষজীবী','দ্বিবর্ষজীবী','বহুবর্ষজীবী','হাজার বছর']},
-    {q:'তেঁতুল গাছে কয়টি বীজপত্র থাকে?',a:'দুটি',o:['একটি','দুটি','তিনটি','অসংখ্য']},
-    {q:'শৈবাল বা অ্যালগির প্রধান দেহকে কী বলা হয়?',a:'থ্যালাস',o:['রাইজোম','থ্যালাস','ফ্রন্ড','ক্যাপসুল']},
-    {q:'বীজ উৎপাদনকারী উদ্ভিদদের (ব্যক্তবীজী ও গুপ্তবীজী) একত্রে কী বলা হয়?',a:'স্পার্মাটোফাইট',o:['স্পার্মাটোফাইট','টেরিডোফাইট','ব্রায়োফাইট','থ্যালোফাইট']},
-    {q:'মস বা ব্রায়োফাইটা উদ্ভিদের সরল সংবহন কলা কী নিয়ে গঠিত?',a:'হাইড্রোম এবং লেপটোম',o:['জাইলেম ও ফ্লোয়েম','হাইড্রোম এবং লেপটোম','ট্রাকিয়া ও ট্রাকিড','সিভনল ও সঙ্গীকোশ']},
-    {q:'ব্যক্তবীজী উদ্ভিদের শস্য (Endosperm) গর্ভাধানের পূর্বে কেমন হয়?',a:'হ্যাপ্লয়েড (n)',o:['হ্যাপ্লয়েড (n)','ডিপ্লয়েড (2n)','ট্রিপ্লয়েড (3n)','বীজ থাকে না']},
-    {q:'কোন প্রকার উদ্ভিদের প্রকৃত বা অপ্রকৃত ফল গঠিত হয়?',a:'গুপ্তবীজী (অ্যানজিওস্পার্ম)',o:['শৈবাল','ফার্ন','ব্যক্তবীজী','গুপ্তবীজী (অ্যানজিওস্পার্ম)']},
-    {q:'ব্যক্তবীজী উদ্ভিদের কোন প্রকারের পাতা দেখা যায়?',a:'শল্কপত্র এবং পর্ণপত্র',o:['শুধুমাত্র শল্কপত্র','শুধুমাত্র পর্ণপত্র','শল্কপত্র এবং পর্ণপত্র','পাতা থাকে না']},
-    {q:'পাইনাস ও নিটাম কোন উদ্ভিদ গোষ্ঠীর উদাহরণ?',a:'ব্যক্তবীজী (জিমনোস্পার্ম)',o:['মস','ফার্ন','ব্যক্তবীজী (জিমনোস্পার্ম)','গুপ্তবীজী']},
-    {q:'দ্বিবীজপত্রী উদ্ভিদের পাতা কীরূপ প্রকৃতির?',a:'জালিকাকার শিরাবিন্যাসযুক্ত এবং বিষমপৃষ্ঠ',o:['সমান্তরাল শিরাবিন্যাসযুক্ত','জালিকাকার শিরাবিন্যাসযুক্ত এবং বিষমপৃষ্ঠ','সমাঙ্কপৃষ্ঠ','কাঁটায় রূপান্তরিত']},
-    {q:'একবীজপত্রী উদ্ভিদের পাতা কীরূপ প্রকৃতির?',a:'সমাঙ্কপৃষ্ঠ ও সমান্তরাল শিরাবিন্যাসযুক্ত',o:['জালিকাকার শিরাবিন্যাসযুক্ত','সমাঙ্কপৃষ্ঠ ও সমান্তরাল শিরাবিন্যাসযুক্ত','বিষমপৃষ্ঠ','শল্কপত্রযুক্ত']},
-    {q:'নিচের কোনটি একবীজপত্রী উদ্ভিদ নয়?',a:'তেঁতুল',o:['ধান','গম','ভুট্টা','তেঁতুল']},
-    {q:'উদ্ভিদ রাজ্যের কোন উপরাজ্যের উদ্ভিদে ফুল, ফল ও বীজ গঠিত হয় না?',a:'ক্রিপটোগ্যামি',o:['ফ্যানেরোগ্যামি','ক্রিপটোগ্যামি','ব্যক্তবীজী','গুপ্তবীজী']},
-    {q:'ক্রিপটোগ্যামি বা অপুষ্পক উদ্ভিদকে প্রধানত কয়টি ভাগে ভাগ করা যায়?',a:'তিনটি',o:['দুটি','তিনটি','চারটি','পাঁচটি']},
-    {q:'স্পাইরোগাইরা এবং উলভা কোন ধরনের অপুষ্পক উদ্ভিদ?',a:'বহুকোষী শৈবাল',o:['এককোষী শৈবাল','বহুকোষী শৈবাল','মস','ফার্ন']},
-    {q:'শৈবালের দেহ মূল, কাণ্ড ও পাতায় বিভক্ত না হয়ে কেমন প্রকৃতির হয়?',a:'থ্যালয়েড বা সমাঙ্গদেহী',o:['থ্যালয়েড বা সমাঙ্গদেহী','রাইজয়েড','ফ্রন্ড','রাইজোম']},
-    {q:'মস বা ব্রায়োফাইটা উদ্ভিদের দেহে জাইলেমের সদৃশ অংশটির নাম কী?',a:'হাইড্রোম',o:['লেপটোম','হাইড্রোম','রাইজয়েড','থ্যালাস']},
-    {q:'ড্রায়োপটেরিস এবং লাইকোপোডিয়াম কোন উদ্ভিদের উদাহরণ?',a:'ফার্ন',o:['শৈবাল','মস','ফার্ন','ব্যক্তবীজী']},
-    {q:'ব্যক্তবীজী বা জিমনোস্পার্ম উদ্ভিদের পাতা কয় প্রকারের হয়?',a:'দুই প্রকার (শল্কপত্র ও পর্ণপত্র)',o:['এক প্রকার','দুই প্রকার (শল্কপত্র ও পর্ণপত্র)','তিন প্রকার','পাতা থাকে না']},
-    {q:'ব্যক্তবীজী উদ্ভিদের শস্য (Endosperm) ক্রোমোজোম সংখ্যা অনুযায়ী কীরূপ?',a:'হ্যাপ্লয়েড (n)',o:['হ্যাপ্লয়েড (n)','ডিপ্লয়েড (2n)','ট্রিপ্লয়েড (3n)','টেট্রাপ্লয়েড (4n)']},
-    {q:'গুপ্তবীজী বা অ্যানজিওস্পার্ম উদ্ভিদের শস্য ক্রোমোজোম সংখ্যা অনুযায়ী কীরূপ?',a:'ট্রিপ্লয়েড (3n)',o:['হ্যাপ্লয়েড (n)','ডিপ্লয়েড (2n)','ট্রিপ্লয়েড (3n)','টেট্রাপ্লয়েড (4n)']},
-    {q:'দ্বিবীজপত্রী উদ্ভিদের পাতা সাধারণত কীরূপ শিরাবিন্যাসযুক্ত হয়?',a:'জালিকাকার',o:['সমান্তরাল','জালিকাকার','বৃত্তাকার','শিরাবিহীন']},
-  ],
-  topic7: [
-    {q:'যেসব প্রাণীদের জীবনে কখনোই নটোকর্ড থাকে না তাদের কী বলে?',a:'নন-কর্ডাটা',o:['কর্ডাটা','নন-কর্ডাটা','ভার্টিব্রাটা','ক্রেনিয়েটা']},
-    {q:'নন-কর্ডাটা প্রাণীদের কয়টি পর্বে ভাগ করা হয়েছে?',a:'১০',o:['৫','৭','১০','১২']},
-    {q:'পরিফেরা পর্বের প্রাণীদের দেহে কোন বিশেষ কোষ থাকে?',a:'কোয়ানোসাইট',o:['নিডোব্লাস্ট','কোয়ানোসাইট','কোলোব্লাস্ট','ফ্লেমকোশ']},
-    {q:'নিডোব্লাস্ট কোষ কোন পর্বের প্রাণীতে দেখা যায়?',a:'নিডারিয়া',o:['পরিফেরা','নিডারিয়া','টিনোফোরা','নিমাটোডা']},
-    {q:'আঠালো \'কোলোব্লাস্ট\' কোষ ও \'কোম্বপ্লেট\' কাদের থাকে?',a:'টিনোফোরা',o:['পরিফেরা','নিডারিয়া','টিনোফোরা','অ্যানিলিডা']},
-    {q:'প্লাটিহেলমিনথিস বা চ্যাপ্টাকৃমির রেচন অঙ্গের নাম কী?',a:'ফ্লেমকোশ',o:['নেফ্রিডিয়া','ম্যালপিজিয়ান নালিকা','ফ্লেমকোশ','সবুজ গ্রন্থি']},
-    {q:'পুরু কিউটিকল দ্বারা আবৃত নিমাটোডা পর্বের উদাহরণ কোনটি?',a:'গোলকৃমি',o:['কেঁচো','গোলকৃমি','ফিতা কৃমি','হাইড্রা']},
-    {q:'কেঁচো ও জোঁকের রেচন অঙ্গের নাম কী? (অ্যানিলিডা পর্ব)',a:'নেফ্রিডিয়া',o:['ফ্লেমকোশ','নেফ্রিডিয়া','বৃক্ক','সবুজ গ্রন্থি']},
-    {q:'সন্ধিল উপাঙ্গ ও কাইটিন নির্মিত বহিঃকঙ্কাল কাদের থাকে?',a:'আর্থ্রোপোডা',o:['নিমাটোডা','অ্যানিলিডা','আর্থ্রোপোডা','মোলাস্কা']},
-    {q:'ম্যান্টল পর্দা দ্বারা আবৃত নরম দেহ কোন পর্বের প্রাণীদের?',a:'মোলাস্কা',o:['আর্থ্রোপোডা','মোলাস্কা','একাইনোডার্মাটা','হেমিকর্ডাটা']},
-    {q:'তারামাছের গমন অঙ্গের নাম কী?',a:'নালিপদ',o:['নালিপদ','মাংসল পদ','কর্ষিকা','ডানা']},
-    {q:'কোন উপপর্বের প্রাণীদের নটোকর্ড কেবল লার্ভা দশায় লেজে থাকে?',a:'ইউরোকর্ডাটা',o:['সেফালোকর্ডাটা','ইউরোকর্ডাটা','ভার্টিব্রাটা','অ্যাগনাথা']},
-    {q:'চোয়ালবিহীন মেরুদণ্ডী (অ্যাগনাথা) প্রাণী কোনটি?',a:'মিক্সিন বা হ্যাগ ফিস',o:['রুই মাছ','হাঙর','মিক্সিন বা হ্যাগ ফিস','কুনো ব্যাঙ']},
-    {q:'তরুণাস্থিযুক্ত মাছ বা কনড্রিকথিস-এর দেহে কোন আঁশ থাকে?',a:'প্ল্যাকয়েড',o:['সাইক্লয়েড','টিনয়েড','গ্যানয়েড','প্ল্যাকয়েড']},
-    {q:'বক্ষগহ্বর ও উদরগহ্বরের মাঝে ডায়াফ্রাম বা মধ্যচ্ছদা কাদের থাকে?',a:'স্তন্যপায়ী',o:['উভচর','সরীসৃপ','পক্ষী','স্তন্যপায়ী']},
-    {q:'পরিফেরা পর্বের প্রাণীদের দেহের অগ্রপ্রান্তে যে বড়ো প্রান্তিক ছিদ্র থাকে, তাকে কী বলে?',a:'অসকিউলাম',o:['অস্টিয়া','অসকিউলাম','নিডোব্লাস্ট','সিলেন্টেরন']},
-    {q:'নিডারিয়া পর্বের প্রাণীদের এক্টোডার্ম ও এন্ডোডার্ম স্তরের মাঝে কী থাকে?',a:'মেসোগ্লিয়া',o:['মেসোডার্ম','মেসোগ্লিয়া','সিলেন্টেরন','ম্যান্টল']},
-    {q:'টিনোফোরা পর্বের প্রাণীদের দেহে চলাফেরার জন্য কয়টি \'কোম্বপ্লেট\' থাকে?',a:'আটটি',o:['চারটি','ছয়টি','আটটি','দশটি']},
-    {q:'ফিতা কৃমি বা প্লাটিহেলমিনথিস পর্বের প্রাণীদের দেহগহ্বর কীরূপ?',a:'অ্যাসিলোমেট (সিলোম থাকে না)',o:['সিলোমেট','সিউডোসিলোমেট','অ্যাসিলোমেট (সিলোম থাকে না)','হিমোসিল']},
-    {q:'গোলকৃমিদের (Nematoda) অন্ত্র কেমন প্রকৃতির?',a:'সম্পূর্ণ (মুখছিদ্র ও পায়ুছিদ্র যুক্ত)',o:['অসম্পূর্ণ','সম্পূর্ণ (মুখছিদ্র ও পায়ুছিদ্র যুক্ত)','অনুপস্থিত','অন্ধগহ্বরযুক্ত']},
-    {q:'অ্যানিলিডা পর্বের প্রাণীদের দেহে রক্ত সংবহনতন্ত্র কেমন প্রকৃতির?',a:'বদ্ধ',o:['মুক্ত','বদ্ধ','অর্ধমুক্ত','সংবহনতন্ত্র থাকে না']},
-    {q:'ম্যালপিজিয়ান নালিকা কোন পর্বের প্রাণীদের রেচন অঙ্গ?',a:'আর্থ্রোপোডা',o:['অ্যানিলিডা','আর্থ্রোপোডা','মোলাস্কা','নিমাটোডা']},
-    {q:'শামুকের শ্বাসযন্ত্রের নাম কী?',a:'টিনিডিয়াম বা পালমোনারি স্যাক',o:['ফুলকা','ফুসফুস','ট্রাকিয়া','টিনিডিয়াম বা পালমোনারি স্যাক']},
-    {q:'তারামাছ বা একাইনোডার্মাটা পর্বের প্রাণীদের দেহে কোন বিশেষ তন্ত্র উপস্থিত থাকে?',a:'জলসংবহনতন্ত্র',o:['রক্তসংবহনতন্ত্র','জলসংবহনতন্ত্র','বায়ুসংবহনতন্ত্র','লসিকাতন্ত্র']},
-    {q:'হেমিকর্ডাটা পর্বের প্রাণীদের দেহ কয়টি অংশে বিভক্ত?',a:'তিনটি (প্রোবোসিস, কলার এবং ট্রাঙ্ক)',o:['দুটি','তিনটি (প্রোবোসিস, কলার এবং ট্রাঙ্ক)','চারটি','অখণ্ডক']},
-    {q:'সেফালোকর্ডাটা উপপর্বের প্রাণীদের দেহের দু-পাশে কোন পেশি থাকে?',a:'মায়োটোম পেশি (\'V\' আকৃতির)',o:['মায়োটোম পেশি (\'V\' আকৃতির)','উড্ডয়ন পেশি','হৃৎপেশি','সিলিয়ারি পেশি']},
-    {q:'ল্যাম্প্রে (Petromyzon) কোন শ্রেণির অন্তর্গত মেরুদণ্ডী প্রাণী?',a:'সাইক্লোস্টোমাটা (অ্যাগনাথা)',o:['কনড্রিকথিস','অসটিকথিস','সাইক্লোস্টোমাটা (অ্যাগনাথা)','উভচর']},
-    {q:'অস্থিযুক্ত মাছ বা অসটিকথিস-এর লেজ কেমন প্রকৃতির হয়?',a:'হোমোসার্কাল',o:['হেটারোসার্কাল','হোমোসার্কাল','ডাইফিফার্কাল','লেজ থাকে না']},
-    {q:'পক্ষী (Aves) শ্রেণির প্রাণীদের বক্ষে উড্ডয়ন পেশি থাকে এবং এদের স্টারনাম নামক অস্থি কীসে রূপান্তরিত হয়?',a:'কীল অস্থিতে',o:['কীল অস্থিতে','করোটিতে','প্যাটেলাতে','ফিমারে']},
-    {q:'যেসব প্রাণীর ভ্রূণ বা পূর্ণাঙ্গ অবস্থায় নটোকর্ড থাকে, তাদের কী বলা হয়?',a:'কর্ডাটা',o:['নন-কর্ডাটা','কর্ডাটা','পরিফেরা','নিডারিয়া']},
-    {q:'পরিফেরা পর্বের প্রাণীদের দেহে উপস্থিত অসংখ্য ছোটো ছিদ্রকে কী বলে?',a:'অস্টিয়া (বা পোর)',o:['অসকিউলাম','অস্টিয়া (বা পোর)','নিডোব্লাস্ট','নালিপদ']},
-    {q:'সিলেন্টেরন নামক দেহগহ্বর কোন পর্বের প্রাণীতে দেখা যায়?',a:'নিডারিয়া',o:['পরিফেরা','নিডারিয়া','টিনোফোরা','আর্থ্রোপোডা']},
-    {q:'কোন পর্বের প্রাণীদের মুখছিদ্রই পায়ুছিদ্রের কাজ করে?',a:'নিডারিয়া',o:['নিডারিয়া','নিমাটোডা','অ্যানিলিডা','মোলাস্কা']},
-    {q:'জেলিফিশ (Aurelia) কোন পর্বের প্রাণী?',a:'নিডারিয়া',o:['পরিফেরা','নিডারিয়া','মোলাস্কা','একাইনোডার্মাটা']},
-    {q:'বেরো (Beroe) এবং হর্মিফোরা (Hormiphora) কোন পর্বের অন্তর্গত?',a:'টিনোফোরা',o:['পরিফেরা','নিডারিয়া','টিনোফোরা','নিমাটোডা']},
-    {q:'প্লাটিহেলমিনথিস পর্বের প্রাণীদের সিলোম বা দেহগহ্বর কীরূপ?',a:'সিলোম থাকে না (অ্যাসিলোমেট)',o:['সিলোম থাকে (সিলোমেট)','সিলোম থাকে না (অ্যাসিলোমেট)','সিউডোসিলোম থাকে','হিমোসিল থাকে']},
-    {q:'যকৃৎ কৃমি (Fasciola) কোন পর্বের প্রাণী?',a:'প্লাটিহেলমিনথিস',o:['নিমাটোডা','প্লাটিহেলমিনথিস','অ্যানিলিডা','আর্থ্রোপোডা']},
-    {q:'নিমাটোডা পর্বের প্রাণীদের রেচন অঙ্গ কী?',a:'একজোড়া রেচন নালি বা রেনেট কোশ',o:['ফ্লেমকোশ','একজোড়া রেচন নালি বা রেনেট কোশ','নেফ্রিডিয়া','সবুজ গ্রন্থি']},
-    {q:'গোদকৃমি (Wuchereria) কোন পর্বের অন্তর্গত?',a:'নিমাটোডা',o:['প্লাটিহেলমিনথিস','নিমাটোডা','অ্যানিলিডা','মোলাস্কা']},
-    {q:'অ্যানিলিডা পর্বের প্রাণীদের দেহ খণ্ডকগুলিকে কী বলা হয়?',a:'আংটির মতো খণ্ডক (Metameres)',o:['মায়োটোম','আংটির মতো খণ্ডক (Metameres)','কোম্বপ্লেট','ম্যান্টল']},
-    {q:'জোঁক (Hirudinaria) কোন পর্বের প্রাণী?',a:'অ্যানিলিডা',o:['নিমাটোডা','প্লাটিহেলমিনথিস','অ্যানিলিডা','আর্থ্রোপোডা']},
-    {q:'ম্যালপিজিয়ান নালিকা, সবুজ গ্রন্থি বা কক্মাল গ্রন্থি কোন পর্বের রেচন অঙ্গ?',a:'আর্থ্রোপোডা',o:['অ্যানিলিডা','আর্থ্রোপোডা','মোলাস্কা','একাইনোডার্মাটা']},
-    {q:'মোলাস্কা পর্বের প্রাণীদের রেচন অঙ্গের নাম কী?',a:'বৃক্ক বা বোজানাসের অঙ্গ',o:['বৃক্ক বা বোজানাসের অঙ্গ','সবুজ গ্রন্থি','নেফ্রিডিয়া','ফ্লেমকোশ']},
-    {q:'সমুদ্র শশা (Cucumaria) কোন পর্বের অন্তর্গত প্রাণী?',a:'একাইনোডার্মাটা',o:['মোলাস্কা','আর্থ্রোপোডা','একাইনোডার্মাটা','হেমিকর্ডাটা']},
-    {q:'হেমিকর্ডাটা পর্বের প্রাণীদের দেহে গলবিলের পাশে কীরূপ ফুলকা ছিদ্র থাকে?',a:'\'U\' আকৃতির',o:['\'V\' আকৃতির','\'U\' আকৃতির','গোলাকার','ছিদ্র থাকে না']},
-    {q:'ব্যালানোগ্লসাস (Balanoglossus) কোন পর্বের প্রাণী?',a:'হেমিকর্ডাটা',o:['একাইনোডার্মাটা','হেমিকর্ডাটা','ইউরোকর্ডাটা','সেফালোকর্ডাটা']},
-    {q:'সেফালোকর্ডাটা উপপর্বের প্রাণীদের দেহের রেচন অঙ্গের নাম কী?',a:'নেফ্রিডিয়া',o:['সবুজ গ্রন্থি','ফ্লেমকোশ','নেফ্রিডিয়া','বৃক্ক']},
-    {q:'অ্যাসিমেট্রন এবং অ্যাম্ফিঅক্সাস কোন উপপর্বের প্রাণী?',a:'সেফালোকর্ডাটা',o:['ইউরোকর্ডাটা','সেফালোকর্ডাটা','ভার্টিব্রাটা','হেমিকর্ডাটা']},
-    {q:'অ্যাগনাথা (Agnatha) অধিশ্রেণির প্রাণীদের প্রধান বৈশিষ্ট্য কী?',a:'চোয়ালবিহীন',o:['চোয়ালযুক্ত','চোয়ালবিহীন','ফুসফুসযুক্ত','পালকযুক্ত']},
-    {q:'কনড্রিকথিস (তরুণাস্থিযুক্ত মাছ) প্রাণীদের মুখছিদ্র কোথায় অবস্থিত?',a:'মস্তকের অঙ্কদেশে (নীচের দিকে)',o:['মস্তকের সম্মুখভাগে','মস্তকের অঙ্কদেশে (নীচের দিকে)','লেজের কাছে','পিঠের দিকে']},
-    {q:'ইলেকট্রিক মাছ (Torpedo) কোন শ্রেণির অন্তর্গত?',a:'কনড্রিকথিস',o:['অসটিকথিস','কনড্রিকথিস','সাইক্লোস্টোমাটা','উভচর']},
-    {q:'উভচর (Amphibia) প্রাণীদের হৃৎপিণ্ডে কয়টি প্রকোষ্ঠ থাকে (সাধারণত)?',a:'দুটি অলিন্দ ও একটি নিলয়',o:['দুটি অলিন্দ ও একটি নিলয়','একটি অলিন্দ ও দুটি নিলয়','দুটি অলিন্দ ও দুটি নিলয়','একটি অলিন্দ ও একটি নিলয়']},
-    {q:'সরীসৃপ (Reptilia) শ্রেণির কোন প্রাণীর হৃৎপিণ্ড অসম্পূর্ণভাবে বিভক্ত নয় (অর্থাৎ চার প্রকোষ্ঠযুক্ত)?',a:'কুমির',o:['গিরগিটি','গোখরো সাপ','কুমির','কচ্ছপ']},
-    {q:'কোন শ্রেণির প্রাণীদের দাঁত হেটারোডন্ট (নানা আকৃতির) প্রকৃতির হয়?',a:'স্তন্যপায়ী (Mammalia)',o:['সাইক্লোস্টোমাটা','সরীসৃপ','পক্ষী','স্তন্যপায়ী (Mammalia)']},
-    {q:'নন-কর্ডাটা বা অকর্ডাটা প্রাণীদের মোট কয়টি পর্বে ভাগ করা হয়েছে?',a:'১০টি',o:['৫টি','৭টি','১০টি','১২টি']},
-    {q:'বাথস্পঞ্জ বা Euspongia কোন পর্বের প্রাণী?',a:'পরিফেরা',o:['পরিফেরা','নিডারিয়া','টিনোফোরা','মোলাস্কা']},
-    {q:'হাইড্রার মুখছিদ্র কোন অংশ দিয়ে ঘেরা থাকে?',a:'কর্ষিকা (Tentacles)',o:['অসকিউলাম','কর্ষিকা (Tentacles)','কোম্বপ্লেট','সিলেন্টেরন']},
-    {q:'কোন পর্বের প্রাণীদের দেহ এক্টোডার্ম ও এন্ডোডার্ম নামক দুটি স্তরে বিভক্ত এবং মাঝে মেসোগ্লিয়া থাকে?',a:'নিডারিয়া',o:['পরিফেরা','নিডারিয়া','নিমাটোডা','অ্যানিলিডা']},
-    {q:'টিনোফোরা পর্বের প্রাণীদের দেহে শিকার ধরার জন্য কোন বিশেষ আঠালো কোশ থাকে?',a:'কোলোব্লাস্ট',o:['নিডোব্লাস্ট','কোলোব্লাস্ট','কোয়ানোসাইট','ফ্লেমকোশ']},
-    {q:'ফিতা কৃমি বা Taenia কোন পর্বের প্রাণী?',a:'প্লাটিহেলমিনথিস',o:['নিমাটোডা','অ্যানিলিডা','প্লাটিহেলমিনথিস','আর্থ্রোপোডা']},
-    {q:'কোন পর্বের প্রাণীদের দেহ পুরু কিউটিকল দ্বারা আবৃত এবং অন্ত্র সম্পূর্ণ?',a:'নিমাটোডা',o:['প্লাটিহেলমিনথিস','নিমাটোডা','অ্যানিলিডা','একাইনোডার্মাটা']},
-    {q:'কেঁচো (Pheretima) কোন পর্বের অন্তর্গত প্রাণী?',a:'অ্যানিলিডা',o:['প্লাটিহেলমিনথিস','নিমাটোডা','অ্যানিলিডা','মোলাস্কা']},
-    {q:'আরশোলা ও মাছি কোন পর্বের প্রাণী?',a:'আর্থ্রোপোডা',o:['অ্যানিলিডা','আর্থ্রোপোডা','মোলাস্কা','একাইনোডার্মাটা']},
-    {q:'মোলাস্কা পর্বের প্রাণীদের চলাফেরার জন্য অঙ্কদেশে কী থাকে?',a:'মাংসল পদ',o:['নালিপদ','মাংসল পদ','সন্ধিল উপাঙ্গ','ডানা']},
-    {q:'তারামাছের দেহে ৫টি সমদূরত্বে বর্তমান কোন অংশ দ্বারা চিহ্নিত?',a:'অ্যাম্বুল্যাক্রা',o:['অ্যাম্বুল্যাক্রা','ম্যান্টল','স্টোমোকর্ড','মায়োটোম']},
-    {q:'হেমিকর্ডাটা পর্বের প্রাণীদের দেহ প্রোবোসিস, ট্রাঙ্ক এবং আর কোন অংশে বিভক্ত?',a:'কলার',o:['মস্তক','লেজ','কলার','ডানা']},
-    {q:'কর্ডাটা পর্বের প্রাণীদের গলবিলের দু-পাশে কী থাকে?',a:'ফুলকা ছিদ্র',o:['ট্রাকিয়া','ফুলকা ছিদ্র','পালমোনারি স্যাক','বুকলাং']},
-  ],
-};
+        // ==========================================
+        // 3. API & DATA MANAGEMENT
+        // ==========================================
 
-const topics = [
-  { id: 'topic1', name: 'জীবনের উৎপত্তি',          color: 'from-emerald-400 to-teal-600',    icon: '🌱' },
-  { id: 'topic2', name: 'জীবের বৈচিত্র্যের উৎস',    color: 'from-violet-400 to-purple-600',  icon: '🦋' },
-  { id: 'topic3', name: 'জীববিদ্যার শাখা ও প্রয়োগ', color: 'from-amber-400 to-orange-500',   icon: '🔬' },
-  { id: 'topic4', name: 'ট্যাক্সোনমি ও নামকরণ',     color: 'from-blue-400 to-indigo-600',    icon: '📋' },
-  { id: 'topic5', name: 'জীবের পাঁচটি রাজ্য',       color: 'from-rose-400 to-pink-600',      icon: '👑' },
-  { id: 'topic6', name: 'উদ্ভিদ রাজ্যের শ্রেণিবিন্যাস', color: 'from-lime-400 to-green-600', icon: '🌿' },
-  { id: 'topic7', name: 'প্রাণী রাজ্যের শ্রেণিবিন্যাস', color: 'from-cyan-400 to-blue-600',   icon: '🐾' },
-];
+        async function fetchAPI(action = 'get', payload = null) {
+            if(GAS_URL === "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE"){
+                // Mock behavior if URL is not set
+                console.warn("GAS URL not set. Using LocalStorage Fallback.");
+                return handleLocalAPI(action, payload);
+            }
 
-// State
-let currentTopic = null;
-let currentQuestions = [];
-let currentIndex = 0;
-let scoreCorrect = 0;
-let scoreWrong = 0;
-let answered = false;
+            try {
+                if (action === 'get') {
+                    const res = await fetch(GAS_URL);
+                    const json = await res.json();
+                    if(json.status === 'success') {
+                        // Ensure all sub-arrays exist even if API returns empty
+                        state.data = { materials: [], videos: [], mockTests: [], practiceTests: [], students: [], logs: [], ...(json.data || {}) };
+                        localStorage.setItem('ls_data_class9', JSON.stringify(state.data));
+                        return true;
+                    } else {
+                        throw new Error("API returned failure status");
+                    }
+                } else {
+                    const res = await fetch(GAS_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({ action, data: payload })
+                    });
+                    const json = await res.json();
+                    return json.status === 'success';
+                }
+            } catch (err) {
+                console.error("API Error:", err);
+                // Fallback to local storage
+                return handleLocalAPI(action, payload);
+            }
+        }
 
-function shuffle(arr) {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
+        function handleLocalAPI(action, payload) {
+            const defaultData = { materials: [], videos: [], mockTests: [], practiceTests: [], students: [], logs: [] };
+            let local = defaultData;
+            
+            // Safely parse local storage
+            try {
+                const stored = localStorage.getItem('ls_data_class9');
+                if (stored) {
+                    local = { ...defaultData, ...JSON.parse(stored) };
+                }
+            } catch (e) {
+                console.error("Local storage parsing error");
+            }
+            
+            if (action === 'get') {
+                state.data = local;
+                return true;
+            } else {
+                // Fixed: Explicitly mapping actions to correct database keys
+                let key = '';
+                if (action === 'add_student') key = 'students';
+                else if (action === 'add_log') key = 'logs';
+                else if (action === 'add_material') key = 'materials';
+                else if (action === 'add_video') key = 'videos';
+                else if (action === 'add_mock_test') key = 'mockTests';
+                else if (action === 'add_practice_test') key = 'practiceTests';
+                
+                if (key) {
+                    if (!local[key]) local[key] = [];
+                    local[key].push(payload);
+                    state.data = local;
+                    localStorage.setItem('ls_data_class9', JSON.stringify(local));
+                }
+                return true;
+            }
+        }
 
-function renderHome() {
-  const grid = document.getElementById('topicGrid');
-  grid.innerHTML = topics.map(t => {
-    const count = (allQuestions[t.id] || []).length;
-    return `
-      <div class="topic-card bg-gradient-to-br ${t.color} text-white rounded-3xl p-6 shadow-lg"
-           onclick="startTopic('${t.id}')">
-        <div class="text-4xl mb-3">${t.icon}</div>
-        <h3 class="text-lg font-bold leading-snug mb-2">${t.name}</h3>
-        <p class="text-white/80 text-sm font-medium">${count}টি প্রশ্ন</p>
-      </div>`;
-  }).join('');
-}
+        async function initData() {
+            // Spinner logic has been moved to callers for better error handling
+            await fetchAPI('get');
+        }
 
-function startTopic(topicId) {
-  currentTopic = topicId;
-  currentQuestions = shuffle(allQuestions[topicId] || []);
-  currentIndex = 0;
-  scoreCorrect = 0;
-  scoreWrong = 0;
-  document.getElementById('homePage').classList.add('hidden');
-  document.getElementById('quizPage').classList.remove('hidden');
-  const topic = topics.find(t => t.id === topicId);
-  document.getElementById('quizTopicTitle').textContent = topic ? topic.name : '';
-  updateScoreDisplay();
-  showQuestion();
-}
+        // ==========================================
+        // 4. AUTHENTICATION
+        // ==========================================
 
-function updateScoreDisplay() {
-  document.getElementById('scoreCorrect').textContent = scoreCorrect;
-  document.getElementById('scoreWrong').textContent = scoreWrong;
-}
+        function toggleAuthTab(type) {
+            document.getElementById('form-student-login').classList.toggle('hidden', type !== 'student');
+            document.getElementById('form-admin-login').classList.toggle('hidden', type !== 'admin');
+            
+            const stdTab = document.getElementById('tab-login-student');
+            const admTab = document.getElementById('tab-login-admin');
+            
+            if(type === 'student') {
+                stdTab.classList.replace('text-gray-500', 'text-primary');
+                stdTab.classList.replace('hover:bg-gray-50', 'bg-gray-50');
+                stdTab.classList.add('border-b-2', 'border-primary');
+                
+                admTab.classList.replace('text-primary', 'text-gray-500');
+                admTab.classList.remove('border-b-2', 'border-primary');
+            } else {
+                admTab.classList.replace('text-gray-500', 'text-primary');
+                admTab.classList.replace('hover:bg-gray-50', 'bg-gray-50');
+                admTab.classList.add('border-b-2', 'border-primary');
+                
+                stdTab.classList.replace('text-primary', 'text-gray-500');
+                stdTab.classList.remove('border-b-2', 'border-primary');
+            }
+        }
 
-function showQuestion() {
-  const q = currentQuestions[currentIndex];
-  const total = currentQuestions.length;
-  document.getElementById('quizProgress').textContent = `প্রশ্ন ${currentIndex + 1} / ${total}`;
-  document.getElementById('qNum').textContent = `${currentIndex + 1} / ${total}`;
-  document.getElementById('progressBar').style.width = (currentIndex / total * 100) + '%';
-  document.getElementById('questionText').textContent = q.q;
+        async function handleStudentLogin(e) {
+            e.preventDefault();
+            const student = {
+                name: document.getElementById('std-name').value.trim(),
+                roll: document.getElementById('std-roll').value.trim(),
+                section: document.getElementById('std-sec').value.trim().toUpperCase(),
+                class: document.getElementById('std-class').value,
+                school: document.getElementById('std-school').value.trim()
+            };
 
-  const shuffledOpts = shuffle(q.o);
-  document.getElementById('optionsContainer').innerHTML = shuffledOpts.map(opt => `
-    <button class="option-btn font-medium px-5 py-4 rounded-2xl shadow-sm"
-            style="font-size:1.15rem; line-height:1.6rem"
-            onclick="checkAnswer(this, this.dataset.opt, this.dataset.correct)"
-            data-opt="${opt.replace(/"/g,'&quot;')}"
-            data-correct="${q.a.replace(/"/g,'&quot;')}">
-      ${opt}
-    </button>`).join('');
+            showSpinner(true);
+            try {
+                await initData(); // Refresh data
 
-  document.getElementById('feedbackBox').classList.add('hidden');
-  document.getElementById('nextBtn').classList.add('hidden');
-  document.getElementById('nextBtn').classList.remove('flex');
-  document.getElementById('questionCard').classList.remove('hidden');
-  document.getElementById('finishCard').classList.add('hidden');
-  answered = false;
-}
+                // Safely check if student exists
+                const studentsList = state.data.students || [];
+                const exists = studentsList.find(s => s.roll == student.roll && s.name === student.name);
+                if (!exists) {
+                    await fetchAPI('add_student', student);
+                }
 
-function checkAnswer(btn, selected, correct) {
-  if (answered) return;
-  answered = true;
+                // Add Log
+                const log = {
+                    date: new Date().toLocaleString('en-IN'),
+                    name: student.name,
+                    roll: student.roll,
+                    classSec: `${student.class} - ${student.section}`
+                };
+                await fetchAPI('add_log', log);
 
-  document.querySelectorAll('.option-btn').forEach(b => {
-    b.disabled = true;
-    const v = b.dataset.opt;
-    if (v === correct) b.classList.add('option-correct');
-    if (v === selected && selected !== correct) b.classList.add('option-wrong');
-  });
+                localStorage.setItem('auth_user_class9', JSON.stringify({ type: 'student', data: student }));
+                state.currentUser = student;
+                showToast(`স্বাগতম, ${student.name}!`);
+                
+                initApp();
+            } catch (err) {
+                console.error(err);
+                showToast('লগইন করতে সমস্যা হচ্ছে। আবার চেষ্টা করুন।', 'error');
+            } finally {
+                // Ensure spinner stops even if there is an error
+                showSpinner(false); 
+            }
+        }
 
-  const fb = document.getElementById('feedbackBox');
-  fb.classList.remove('hidden');
-  if (selected === correct) {
-    scoreCorrect++;
-    fb.className = 'mt-5 rounded-2xl px-5 py-4 font-semibold bg-green-50 border-2 border-green-300 text-green-800';
-    fb.textContent = '✅ সঠিক! উত্তর: ' + correct;
-  } else {
-    scoreWrong++;
-    fb.className = 'mt-5 rounded-2xl px-5 py-4 font-semibold bg-red-50 border-2 border-red-300 text-red-800';
-    fb.textContent = '❌ ভুল। সঠিক উত্তর: ' + correct;
-  }
-  updateScoreDisplay();
-  document.getElementById('nextBtn').classList.remove('hidden');
-  document.getElementById('nextBtn').classList.add('flex');
-}
+        function handleAdminLogin(e) {
+            e.preventDefault();
+            const id = document.getElementById('admin-id').value;
+            const pwd = document.getElementById('admin-pwd').value;
 
-function nextQuestion() {
-  currentIndex++;
-  if (currentIndex >= currentQuestions.length) {
-    showFinish();
-  } else {
-    showQuestion();
-  }
-}
+            if (id === 'admin' && pwd === '1234') {
+                localStorage.setItem('auth_user_class9', JSON.stringify({ type: 'admin' }));
+                state.currentUser = 'admin';
+                showToast('অ্যাডমিন লগইন সফল!');
+                initApp();
+            } else {
+                showToast('ভুল আইডি বা পাসওয়ার্ড!', 'error');
+            }
+        }
 
-function showFinish() {
-  document.getElementById('questionCard').classList.add('hidden');
-  document.getElementById('finishCard').classList.remove('hidden');
-  const total = currentQuestions.length;
-  const pct = Math.round(scoreCorrect / total * 100);
-  document.getElementById('progressBar').style.width = '100%';
-  document.getElementById('quizProgress').textContent = 'সম্পন্ন!';
-  document.getElementById('scoreText').textContent = `${scoreCorrect} / ${total} (${pct}%)`;
-  let grade = '';
-  if (pct >= 90) grade = '🏆 অসাধারণ!';
-  else if (pct >= 75) grade = '🌟 খুব ভালো!';
-  else if (pct >= 60) grade = '👍 ভালো!';
-  else if (pct >= 40) grade = '📚 আরও পড়তে হবে';
-  else grade = '💪 চেষ্টা চালিয়ে যাও!';
-  document.getElementById('gradeText').textContent = grade;
-}
+        function logout() {
+            localStorage.removeItem('auth_user_class9');
+            state.currentUser = null;
+            initApp();
+        }
 
-function resetQuiz() {
-  startTopic(currentTopic);
-}
+        // ==========================================
+        // 5. ROUTING & INITIALIZATION
+        // ==========================================
 
-function goHome() {
-  document.getElementById('homePage').classList.remove('hidden');
-  document.getElementById('quizPage').classList.add('hidden');
-}
+        async function initApp() {
+            const authStr = localStorage.getItem('auth_user_class9');
+            if (authStr) {
+                const auth = JSON.parse(authStr);
+                
+                showSpinner(true);
+                try {
+                    if (auth.type === 'admin') {
+                        state.currentUser = 'admin';
+                        document.getElementById('view-login').classList.add('hidden');
+                        document.getElementById('view-student').classList.add('hidden');
+                        document.getElementById('view-admin').classList.remove('hidden');
+                        await initData();
+                        switchAdminTab('students');
+                    } else {
+                        state.currentUser = auth.data;
+                        document.getElementById('view-login').classList.add('hidden');
+                        document.getElementById('view-admin').classList.add('hidden');
+                        document.getElementById('view-student').classList.remove('hidden');
+                        document.getElementById('std-user-name').innerText = auth.data.name;
+                        await initData();
+                        renderStudentSidebar();
+                        loadStudentView('chapter', 0);
+                    }
+                } catch (err) {
+                    console.error("Init Error:", err);
+                    showToast('ডেটা লোড করতে সমস্যা হয়েছে।', 'error');
+                } finally {
+                    showSpinner(false);
+                }
+            } else {
+                document.getElementById('view-student').classList.add('hidden');
+                document.getElementById('view-admin').classList.add('hidden');
+                document.getElementById('view-login').classList.remove('hidden');
+            }
+        }
 
-renderHome();
-</script>
+        // ==========================================
+        // 6. STUDENT DASHBOARD LOGIC
+        // ==========================================
+
+        function renderStudentSidebar() {
+            const list = document.getElementById('std-chapter-list');
+            list.innerHTML = CHAPTERS.map((ch, idx) => `
+                <button onclick="loadStudentView('chapter', ${idx})" class="std-nav-btn w-full text-left px-5 py-3 hover:bg-emerald-50 text-gray-700 font-medium border-l-4 border-transparent hover:border-primary transition flex items-center gap-3 text-sm" data-idx="${idx}">
+                    <div class="w-6 h-6 rounded-full bg-emerald-100 text-primary flex items-center justify-center font-bold text-xs shrink-0">${toBengaliNum(idx+1)}</div>
+                    <span class="line-clamp-2">${ch}</span>
+                </button>
+            `).join('');
+        }
+
+        function loadStudentView(type, index = null) {
+            const main = document.getElementById('std-main-content');
+            
+            // Highlight nav
+            document.querySelectorAll('.std-nav-btn').forEach(btn => {
+                btn.classList.remove('bg-emerald-50', 'border-primary', 'text-primary');
+                btn.classList.add('border-transparent', 'text-gray-700');
+            });
+
+            if (type === 'mock') {
+                state.currentChapter = null;
+                renderMockTests(main);
+            } else if (type === 'chapter') {
+                state.currentChapter = index;
+                // highlight active chapter
+                const activeBtn = document.querySelector(`.std-nav-btn[data-idx="${index}"]`);
+                if(activeBtn) {
+                    activeBtn.classList.remove('border-transparent', 'text-gray-700');
+                    activeBtn.classList.add('bg-emerald-50', 'border-primary', 'text-primary');
+                }
+                renderChapterContent(main, index);
+            }
+
+            // close mobile sidebar
+            if (window.innerWidth < 768) {
+                document.getElementById('std-sidebar').classList.add('-translate-x-full');
+            }
+        }
+
+        function renderMockTests(container) {
+            const tests = state.data.mockTests || [];
+            
+            let html = `
+                <div class="max-w-4xl mx-auto">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2"><i class="fa-solid fa-laptop-file text-blue-500"></i> মক টেস্ট সমূহ</h2>
+            `;
+
+            if (tests.length === 0) {
+                html += `<div class="bg-white p-8 rounded-xl shadow text-center text-gray-500">বর্তমানে কোনো মক টেস্ট উপলব্ধ নেই।</div>`;
+            } else {
+                html += `<div class="grid grid-cols-1 md:grid-cols-2 gap-4">`;
+                tests.forEach((t, i) => {
+                    html += `
+                        <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition">
+                            <div class="flex items-start gap-4">
+                                <div class="bg-blue-100 text-blue-600 w-12 h-12 rounded-lg flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-file-signature"></i></div>
+                                <div>
+                                    <h3 class="font-bold text-gray-800 mb-2">${t.title}</h3>
+                                    <button onclick="openExternalTest('${t.link}')" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition shadow-sm">
+                                        Test Start করুন <i class="fa-solid fa-arrow-up-right-from-square ml-1 text-xs"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += `</div>`;
+            }
+            html += `</div>`;
+            container.innerHTML = html;
+        }
+
+        function openExternalTest(url) {
+            alert('এই টেস্টটি একটি বাইরের লিংকে (যেমন Google Form) খুলবে।');
+            window.open(url, '_blank');
+        }
+
+        function renderChapterContent(container, chapterIndex) {
+            const chName = CHAPTERS[chapterIndex];
+            state.studentTab = state.studentTab || 'notes';
+            state.score = 0; // Reset score on chapter change
+
+            let html = `
+                <div class="max-w-4xl mx-auto">
+                    <div class="bg-white rounded-xl shadow-sm p-6 mb-6 border-l-4 border-primary">
+                        <h2 class="text-xl md:text-2xl font-bold text-gray-800">অধ্যায় ${toBengaliNum(chapterIndex + 1)}: ${chName}</h2>
+                    </div>
+
+                    <!-- Tabs -->
+                    <div class="flex gap-2 border-b mb-6 overflow-x-auto pb-1 hide-scrollbar">
+                        <button onclick="switchChapterTab('notes')" class="tab-btn whitespace-nowrap px-4 py-2 font-semibold ${state.studentTab === 'notes' ? 'active' : 'text-gray-500 hover:text-gray-800'}"><i class="fa-solid fa-book-open mr-2"></i>স্টাডি নোটস</button>
+                        <button onclick="switchChapterTab('videos')" class="tab-btn whitespace-nowrap px-4 py-2 font-semibold ${state.studentTab === 'videos' ? 'active' : 'text-gray-500 hover:text-gray-800'}"><i class="fa-brands fa-youtube text-red-500 mr-2"></i>ভিডিও ক্লাস</button>
+                        <button onclick="switchChapterTab('mcq')" class="tab-btn whitespace-nowrap px-4 py-2 font-semibold ${state.studentTab === 'mcq' ? 'active' : 'text-gray-500 hover:text-gray-800'}"><i class="fa-solid fa-brain text-purple-500 mr-2"></i>প্র্যাকটিস MCQ</button>
+                    </div>
+                    
+                    <div id="tab-content-area"></div>
+                </div>
+            `;
+            container.innerHTML = html;
+            switchChapterTab(state.studentTab);
+        }
+
+        function switchChapterTab(tab) {
+            state.studentTab = tab;
+            const area = document.getElementById('tab-content-area');
+            if(!area) return;
+            
+            // Re-render tabs highlighting
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.className = `tab-btn whitespace-nowrap px-4 py-2 font-semibold text-gray-500 hover:text-gray-800`;
+                if(btn.innerHTML.includes(tab === 'notes' ? 'নোটস' : tab === 'videos' ? 'ভিডিও' : 'MCQ')) {
+                    btn.classList.add('active', 'border-b-2', 'border-primary', 'text-primary');
+                    btn.classList.remove('text-gray-500', 'hover:text-gray-800');
+                }
+            });
+
+            const chName = CHAPTERS[state.currentChapter];
+
+            if (tab === 'notes') {
+                const materials = (state.data.materials || []).filter(m => m.chapter === chName);
+                if(materials.length === 0) area.innerHTML = `<div class="p-8 text-center bg-white rounded-xl text-gray-500 shadow-sm">এই অধ্যায়ের কোনো নোটস এখনো আপলোড করা হয়নি।</div>`;
+                else {
+                    area.innerHTML = `<div class="grid gap-4 md:grid-cols-2">` + materials.map(m => `
+                        <a href="${m.link}" target="_blank" class="flex items-center p-4 bg-white rounded-xl shadow-sm hover:shadow-md border border-gray-100 transition group">
+                            <div class="bg-emerald-100 text-primary w-12 h-12 rounded-lg flex items-center justify-center text-xl shrink-0 group-hover:scale-110 transition"><i class="fa-solid fa-file-pdf"></i></div>
+                            <div class="ml-4">
+                                <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">${m.type}</span>
+                                <h3 class="font-bold text-gray-800 leading-tight">${m.title}</h3>
+                            </div>
+                        </a>
+                    `).join('') + `</div>`;
+                }
+            } 
+            else if (tab === 'videos') {
+                const videos = (state.data.videos || []).filter(v => v.chapter === chName);
+                if(videos.length === 0) area.innerHTML = `<div class="p-8 text-center bg-white rounded-xl text-gray-500 shadow-sm">এই অধ্যায়ের কোনো ভিডিও ক্লাস উপলব্ধ নেই।</div>`;
+                else {
+                    area.innerHTML = `<div class="grid gap-4 md:grid-cols-2">` + videos.map(v => {
+                        // Extract YT ID for thumbnail
+                        let ytId = '';
+                        try { ytId = v.link.split('v=')[1]?.split('&')[0] || v.link.split('youtu.be/')[1]?.split('?')[0]; } catch(e){}
+                        const thumb = ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : 'https://via.placeholder.com/320x180?text=Video';
+                        
+                        return `
+                        <a href="${v.link}" target="_blank" class="block bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition">
+                            <div class="relative">
+                                <img src="${thumb}" class="w-full h-40 object-cover" alt="Video">
+                                <div class="absolute inset-0 bg-black/20 flex items-center justify-center group-hover:bg-black/10 transition">
+                                    <i class="fa-brands fa-youtube text-4xl text-white drop-shadow-md"></i>
+                                </div>
+                            </div>
+                            <div class="p-4">
+                                <h3 class="font-bold text-gray-800 line-clamp-2">${v.title}</h3>
+                            </div>
+                        </a>
+                    `}).join('') + `</div>`;
+                }
+            }
+            else if (tab === 'mcq') {
+                renderMCQ(area, chName);
+            }
+        }
+
+        function renderMCQ(container, chName) {
+            const mcqs = (state.data.practiceTests || []).filter(q => q.chapter === chName);
+            
+            if(mcqs.length === 0) {
+                container.innerHTML = `<div class="p-8 text-center bg-white rounded-xl text-gray-500 shadow-sm">এই অধ্যায়ের কোনো প্র্যাকটিস প্রশ্ন নেই।</div>`;
+                return;
+            }
+
+            state.score = 0;
+            let html = `
+                <div class="bg-white rounded-xl shadow-sm p-4 mb-4 flex justify-between items-center sticky top-0 z-10 border-b">
+                    <span class="font-bold text-gray-700">মোট প্রশ্ন: ${toBengaliNum(mcqs.length)}টি</span>
+                    <span class="font-bold text-primary bg-emerald-50 px-4 py-2 rounded-lg">স্কোর: <span id="mcq-score">০</span></span>
+                </div>
+                <div class="space-y-6">
+            `;
+
+            mcqs.forEach((q, i) => {
+                html += `
+                    <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-100" id="q-card-${i}">
+                        <h3 class="font-bold text-gray-800 mb-4 text-lg"><span class="text-primary mr-2">${toBengaliNum(i+1)}.</span> ${q.q}</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="q-opts-${i}">
+                            <button onclick="checkAns(this, 'optA', '${q.ans}', ${i})" class="mcq-btn text-left p-3 border rounded-lg hover:bg-gray-50 transition">ক) ${q.optA}</button>
+                            <button onclick="checkAns(this, 'optB', '${q.ans}', ${i})" class="mcq-btn text-left p-3 border rounded-lg hover:bg-gray-50 transition">খ) ${q.optB}</button>
+                            <button onclick="checkAns(this, 'optC', '${q.ans}', ${i})" class="mcq-btn text-left p-3 border rounded-lg hover:bg-gray-50 transition">গ) ${q.optC}</button>
+                            <button onclick="checkAns(this, 'optD', '${q.ans}', ${i})" class="mcq-btn text-left p-3 border rounded-lg hover:bg-gray-50 transition">ঘ) ${q.optD}</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += `</div>`;
+            container.innerHTML = html;
+        }
+
+        function checkAns(btnElement, selectedOpt, correctOpt, qIndex) {
+            const container = document.getElementById(`q-opts-${qIndex}`);
+            const btns = container.querySelectorAll('.mcq-btn');
+            
+            // Normalize correct option (handle both optA/B/C/D and ক/খ/গ/ঘ)
+            let normCorrect = correctOpt ? correctOpt.toString().trim() : '';
+            if (normCorrect === 'ক' || normCorrect === 'a' || normCorrect === 'A' || normCorrect === '1') normCorrect = 'optA';
+            else if (normCorrect === 'খ' || normCorrect === 'b' || normCorrect === 'B' || normCorrect === '2') normCorrect = 'optB';
+            else if (normCorrect === 'গ' || normCorrect === 'c' || normCorrect === 'C' || normCorrect === '3') normCorrect = 'optC';
+            else if (normCorrect === 'ঘ' || normCorrect === 'd' || normCorrect === 'D' || normCorrect === '4') normCorrect = 'optD';
+
+            // Disable all
+            btns.forEach(b => {
+                b.disabled = true;
+                b.classList.remove('hover:bg-gray-50');
+                b.classList.add('cursor-not-allowed', 'opacity-80');
+            });
+
+            // Map options to elements implicitly via structure
+            const optMap = ['optA', 'optB', 'optC', 'optD'];
+            
+            if (selectedOpt === normCorrect) {
+                btnElement.classList.add('bg-green-500', 'text-white', 'border-green-600', 'font-bold');
+                state.score++;
+                document.getElementById('mcq-score').innerText = toBengaliNum(state.score);
+            } else {
+                btnElement.classList.add('bg-red-500', 'text-white', 'border-red-600');
+                // Highlight correct
+                const correctIdx = optMap.indexOf(normCorrect);
+                if(correctIdx !== -1) {
+                    btns[correctIdx].classList.add('bg-green-500', 'text-white', 'border-green-600', 'font-bold');
+                }
+            }
+        }
+
+        // ==========================================
+        // 7. ADMIN DASHBOARD LOGIC
+        // ==========================================
+
+        function switchAdminTab(tabId) {
+            // UI styling
+            document.querySelectorAll('.admin-tab').forEach(el => {
+                el.classList.remove('bg-gray-700', 'border-primary');
+                el.classList.add('border-transparent');
+            });
+            event.currentTarget.classList.add('bg-gray-700', 'border-primary');
+            event.currentTarget.classList.remove('border-transparent');
+
+            if (window.innerWidth < 768) {
+                document.getElementById('admin-sidebar').classList.add('-translate-x-full');
+            }
+
+            renderAdminContent(tabId);
+        }
+
+        function renderAdminContent(tabId) {
+            const main = document.getElementById('admin-main-content');
+            let html = '';
+
+            const chOptions = CHAPTERS.map(c => `<option value="${c}">${c}</option>`).join('');
+
+            if (tabId === 'students') {
+                const students = state.data.students || [];
+                html = `
+                    <h2 class="text-2xl font-bold mb-4">নিবন্ধিত ছাত্রছাত্রী (${students.length})</h2>
+                    <div class="bg-white rounded-lg shadow overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead><tr class="bg-gray-200 text-gray-700"><th class="p-3">নাম</th><th class="p-3">রোল</th><th class="p-3">সেকশন</th><th class="p-3">স্কুল</th></tr></thead>
+                            <tbody>
+                                ${students.map(s => `<tr class="border-b"><td class="p-3">${s.name}</td><td class="p-3">${s.roll}</td><td class="p-3">${s.section}</td><td class="p-3">${s.school}</td></tr>`).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            } 
+            else if (tabId === 'logs') {
+                const logs = state.data.logs || [];
+                html = `
+                    <h2 class="text-2xl font-bold mb-4">লগিন হিস্ট্রি</h2>
+                    <div class="bg-white rounded-lg shadow overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead><tr class="bg-gray-200 text-gray-700"><th class="p-3">তারিখ ও সময়</th><th class="p-3">নাম</th><th class="p-3">রোল</th><th class="p-3">ক্লাস-সেকশন</th></tr></thead>
+                            <tbody>
+                                ${[...logs].reverse().slice(0, 100).map(l => `<tr class="border-b"><td class="p-3 text-sm text-gray-500">${l.date}</td><td class="p-3 font-semibold">${l.name}</td><td class="p-3">${l.roll}</td><td class="p-3">${l.classSec}</td></tr>`).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            }
+            else if (tabId === 'materials') {
+                const materials = state.data.materials || [];
+                html = `
+                    <h2 class="text-2xl font-bold mb-4">স্টাডি মেটেরিয়াল যোগ করুন</h2>
+                    <form onsubmit="handleAdminSubmit(event, 'add_material')" class="bg-white p-5 rounded-lg shadow mb-6 space-y-4">
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div><label class="block text-sm font-bold mb-1">অধ্যায়</label><select name="chapter" class="w-full border rounded p-2">${chOptions}</select></div>
+                            <div><label class="block text-sm font-bold mb-1">টাইপ</label><input type="text" name="type" value="Notes" class="w-full border rounded p-2"></div>
+                            <div class="md:col-span-2"><label class="block text-sm font-bold mb-1">শিরোনাম</label><input type="text" name="title" required class="w-full border rounded p-2"></div>
+                            <div class="md:col-span-2"><label class="block text-sm font-bold mb-1">লিংক (Drive PDF etc.)</label><input type="url" name="link" required class="w-full border rounded p-2"></div>
+                        </div>
+                        <button type="submit" class="bg-primary text-white px-4 py-2 rounded font-bold hover:bg-dark">যোগ করুন</button>
+                    </form>
+                    <h3 class="font-bold mb-2">বিদ্যমান মেটেরিয়ালস (${materials.length})</h3>
+                    <ul class="space-y-2">
+                        ${materials.map(m => `<li class="bg-white p-3 rounded shadow-sm text-sm border-l-4 border-primary"><b>${m.chapter}</b>: <a href="${m.link}" target="_blank" class="text-blue-600 hover:underline">${m.title}</a> (${m.type})</li>`).join('')}
+                    </ul>
+                `;
+            }
+            else if (tabId === 'videos') {
+                const videos = state.data.videos || [];
+                html = `
+                    <h2 class="text-2xl font-bold mb-4">ভিডিও ক্লাস যোগ করুন</h2>
+                    <form onsubmit="handleAdminSubmit(event, 'add_video')" class="bg-white p-5 rounded-lg shadow mb-6 space-y-4">
+                        <div><label class="block text-sm font-bold mb-1">অধ্যায়</label><select name="chapter" class="w-full border rounded p-2">${chOptions}</select></div>
+                        <div><label class="block text-sm font-bold mb-1">শিরোনাম</label><input type="text" name="title" required class="w-full border rounded p-2"></div>
+                        <div><label class="block text-sm font-bold mb-1">ইউটিউব লিংক</label><input type="url" name="link" required class="w-full border rounded p-2"></div>
+                        <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded font-bold hover:bg-red-600">যোগ করুন</button>
+                    </form>
+                    <ul class="space-y-2">
+                        ${videos.map(v => `<li class="bg-white p-3 rounded shadow-sm text-sm border-l-4 border-red-500"><b>${v.chapter}</b>: <a href="${v.link}" target="_blank" class="text-blue-600 hover:underline">${v.title}</a></li>`).join('')}
+                    </ul>
+                `;
+            }
+            else if (tabId === 'mockTests') {
+                const mockTests = state.data.mockTests || [];
+                html = `
+                    <h2 class="text-2xl font-bold mb-4">গ্লোবাল মক টেস্ট যোগ করুন</h2>
+                    <form onsubmit="handleAdminSubmit(event, 'add_mock_test')" class="bg-white p-5 rounded-lg shadow mb-6 space-y-4">
+                        <div><label class="block text-sm font-bold mb-1">পরীক্ষার নাম/শিরোনাম</label><input type="text" name="title" required class="w-full border rounded p-2"></div>
+                        <div><label class="block text-sm font-bold mb-1">লিংক (Google Form / Any Tool)</label><input type="url" name="link" required class="w-full border rounded p-2"></div>
+                        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded font-bold hover:bg-blue-600">যোগ করুন</button>
+                    </form>
+                    <ul class="space-y-2">
+                        ${mockTests.map(m => `<li class="bg-white p-3 rounded shadow-sm flex justify-between items-center border-l-4 border-blue-500"><span><b>${m.title}</b></span> <a href="${m.link}" target="_blank" class="text-xs bg-gray-200 px-2 py-1 rounded hover:bg-gray-300">Open <i class="fa-solid fa-external-link-alt"></i></a></li>`).join('')}
+                    </ul>
+                `;
+            }
+            else if (tabId === 'practiceTests') {
+                const practiceTests = state.data.practiceTests || [];
+                html = `
+                    <h2 class="text-2xl font-bold mb-4">প্র্যাকটিস MCQ যোগ করুন</h2>
+                    <form onsubmit="handleAdminSubmit(event, 'add_practice_test')" class="bg-white p-5 rounded-lg shadow mb-6 space-y-4">
+                        <div><label class="block text-sm font-bold mb-1">অধ্যায়</label><select name="chapter" class="w-full border rounded p-2">${chOptions}</select></div>
+                        <div><label class="block text-sm font-bold mb-1">প্রশ্ন</label><textarea name="q" required class="w-full border rounded p-2" rows="2"></textarea></div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div><label class="text-xs font-bold">ক) Option A</label><input type="text" name="optA" required class="w-full border rounded p-1"></div>
+                            <div><label class="text-xs font-bold">খ) Option B</label><input type="text" name="optB" required class="w-full border rounded p-1"></div>
+                            <div><label class="text-xs font-bold">গ) Option C</label><input type="text" name="optC" required class="w-full border rounded p-1"></div>
+                            <div><label class="text-xs font-bold">ঘ) Option D</label><input type="text" name="optD" required class="w-full border rounded p-1"></div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold mb-1">সঠিক উত্তর নির্বাচন করুন</label>
+                            <select name="ans" class="w-full border rounded p-2 bg-green-50 font-bold">
+                                <option value="optA">ক) Option A</option>
+                                <option value="optB">খ) Option B</option>
+                                <option value="optC">গ) Option C</option>
+                                <option value="optD">ঘ) Option D</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="bg-purple-600 text-white px-4 py-2 rounded font-bold hover:bg-purple-700">যোগ করুন</button>
+                    </form>
+                    <div class="bg-white rounded p-4 shadow text-sm">
+                        <b>সর্বমোট প্রশ্ন: ${practiceTests.length}</b>
+                    </div>
+                `;
+            }
+
+            main.innerHTML = html;
+        }
+
+        async function handleAdminSubmit(e, action) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+            
+            showSpinner(true);
+            try {
+                const success = await fetchAPI(action, data);
+                if (success) {
+                    showToast('সফলভাবে যুক্ত করা হয়েছে!');
+                    e.target.reset();
+                    await initData(); // Re-fetch
+                    
+                    // Re-render current tab
+                    const currentTabMap = {
+                        'add_material': 'materials',
+                        'add_video': 'videos',
+                        'add_mock_test': 'mockTests',
+                        'add_practice_test': 'practiceTests'
+                    };
+                    renderAdminContent(currentTabMap[action]);
+                } else {
+                    showToast('সংরক্ষণ করতে সমস্যা হয়েছে!', 'error');
+                }
+            } catch (err) {
+                console.error(err);
+                showToast('সংরক্ষণ করতে সমস্যা হয়েছে!', 'error');
+            } finally {
+                showSpinner(false);
+            }
+        }
+
+        // ==========================================
+        // INITIALIZE APP ON LOAD
+        // ==========================================
+        window.addEventListener('DOMContentLoaded', initApp);
+
+    </script>
 </body>
 </html>
