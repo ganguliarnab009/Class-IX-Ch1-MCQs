@@ -88,7 +88,7 @@
                 </div>
 
                 <div class="p-8">
-                    <!-- Student Form -->
+                    <!-- Student Login Form -->
                     <form id="form-student-login" class="space-y-4" onsubmit="handleStudentLogin(event)">
                         <div>
                             <label class="block text-sm font-semibold mb-1 text-gray-700">নাম <span class="text-red-500">*</span></label>
@@ -115,7 +115,7 @@
                         <button type="submit" class="w-full bg-primary hover:bg-dark text-white font-bold py-3.5 px-4 rounded-xl transition duration-300 shadow-lg shadow-emerald-600/30 transform hover:-translate-y-0.5">সহায়ক অ্যাপে প্রবেশ করো <i class="fa-solid fa-right-to-bracket ml-2"></i></button>
                     </form>
 
-                    <!-- Admin Form -->
+                    <!-- Admin Login Form -->
                     <form id="form-admin-login" class="space-y-4 hidden" onsubmit="handleAdminLogin(event)">
                         <div>
                             <label class="block text-sm font-semibold mb-1 text-gray-700">অ্যাডমিন আইডি</label>
@@ -137,12 +137,11 @@
             <div class="bg-primary text-white p-4 flex justify-between items-center md:hidden shadow-md z-10">
                 <h1 class="font-bold text-lg truncate"><i class="fa-solid fa-leaf mr-2"></i>জীবনবিজ্ঞান সহায়ক</h1>
                 <div class="flex items-center gap-3">
-                    <span id="std-score-badge-mobile" class="bg-amber-400 text-dark text-xs font-bold px-2.5 py-1 rounded-full"><i class="fa-solid fa-star mr-1"></i>০</span>
                     <button onclick="toggleSidebar('std-sidebar')" class="text-white text-2xl"><i class="fa-solid fa-bars"></i></button>
                 </div>
             </div>
 
-            <!-- Sidebar -->
+            <!-- Sidebar Navigation -->
             <aside id="std-sidebar" class="bg-white w-full md:w-80 shadow-2xl h-full fixed md:relative z-20 transform -translate-x-full md:translate-x-0 transition-transform duration-300 flex flex-col border-r">
                 <div class="p-6 bg-gradient-to-r from-primary to-dark text-white hidden md:block relative overflow-hidden">
                     <div class="absolute -right-6 -bottom-6 text-emerald-500/20 text-8xl"><i class="fa-solid fa-microscope"></i></div>
@@ -167,7 +166,7 @@
                     </div>
                     
                     <div>
-                        <p class="px-3 text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">विशेष ল্যাব</p>
+                        <p class="px-3 text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">বিশেষ ল্যাব</p>
                         <nav class="space-y-1">
                             <button onclick="loadStudentView('cell-lab')" class="std-special-nav-btn w-full text-left px-4 py-3 hover:bg-amber-50 text-gray-700 font-semibold border-l-4 border-transparent hover:border-amber-500 rounded-r-xl transition flex items-center gap-3">
                                 <i class="fa-solid fa-flask-vial text-amber-500 w-5 text-lg"></i> কোষ অঙ্গাণু ল্যাব (Cell Lab)
@@ -186,15 +185,11 @@
                 </div>
                 
                 <div class="p-4 border-t bg-gray-50 flex items-center justify-between">
-                    <div class="hidden md:flex items-center gap-2 text-sm text-gray-600 font-semibold">
-                        <i class="fa-solid fa-star text-amber-500"></i>
-                        <span>স্কোর: <span id="std-score-badge-desktop" class="text-primary font-bold">০</span></span>
-                    </div>
-                    <button onclick="logout()" class="flex-1 md:flex-initial py-2.5 px-4 bg-red-50 text-red-600 font-bold rounded-xl hover:bg-red-100 transition flex items-center justify-center gap-2 text-sm"><i class="fa-solid fa-sign-out-alt"></i> লগআউট</button>
+                    <button onclick="logout()" class="w-full py-2.5 bg-red-50 text-red-600 font-bold rounded-xl hover:bg-red-100 transition flex items-center justify-center gap-2 text-sm"><i class="fa-solid fa-sign-out-alt"></i> লগআউট</button>
                 </div>
             </aside>
 
-            <!-- Main Content Area -->
+            <!-- Main Content Display Area -->
             <main class="flex-1 bg-gray-50 h-full overflow-y-auto p-4 md:p-8 relative" id="std-main-content">
                 <!-- Content gets dynamically injected -->
             </main>
@@ -229,7 +224,7 @@
                         <button onclick="switchAdminTab('materials', this)" class="admin-tab w-full text-left px-5 py-3.5 hover:bg-gray-800 font-bold border-l-4 border-transparent hover:border-primary rounded-r-lg transition flex items-center gap-3 text-sm text-gray-300"><i class="fa-solid fa-book w-5 text-blue-400"></i> স্টাডি মেটেরিয়াল</button>
                         <button onclick="switchAdminTab('videos', this)" class="admin-tab w-full text-left px-5 py-3.5 hover:bg-gray-800 font-bold border-l-4 border-transparent hover:border-primary rounded-r-lg transition flex items-center gap-3 text-sm text-gray-300"><i class="fa-brands fa-youtube w-5 text-red-400"></i> ভিডিও ক্লাস</button>
                         <button onclick="switchAdminTab('mockTests', this)" class="admin-tab w-full text-left px-5 py-3.5 hover:bg-gray-800 font-bold border-l-4 border-transparent hover:border-primary rounded-r-lg transition flex items-center gap-3 text-sm text-gray-300"><i class="fa-solid fa-laptop-file w-5 text-teal-400"></i> মক টেস্ট</button>
-                        <button onclick="switchAdminTab('practiceTests', this)" class="admin-tab w-full text-left px-5 py-3.5 hover:bg-gray-800 font-bold border-l-4 border-transparent hover:border-primary rounded-r-lg transition flex items-center gap-3 text-sm text-gray-300"><i class="fa-solid fa-brain w-5 text-purple-400"></i> প্র্যাকটিস MCQ</button>
+                        <button onclick="switchAdminTab('practiceTests', this)" class="admin-tab w-full text-left px-5 py-3.5 hover:bg-gray-800 font-bold border-l-4 border-transparent hover:border-primary rounded-r-lg transition flex items-center gap-3 text-sm text-gray-300"><i class="fa-solid fa-brain w-5 text-purple-400"></i> প্র্যাকটিস MCQ (Google Form)</button>
                     </nav>
                 </div>
                 <div class="p-4 border-t border-gray-800 bg-gray-950">
@@ -249,7 +244,7 @@
         // 1. CONFIGURATION & STATE (GAS API)
         // ==========================================
         
-        // আপনার গুগল অ্যাপস স্ক্রিপ্ট (Google Apps Script) ওয়েব অ্যাপ URL এখানে বসান
+        // গুগল অ্যাপস স্ক্রিপ্ট (Google Apps Script) ওয়েব অ্যাপ URL
         const GAS_URL = "https://script.google.com/macros/s/AKfycbyj8f4eovZAJ29JHhwOEgDDLH_0M-ghH_hzvYz60yUZ9xOUIk0BK2qbqAPayaMpujbcYw/exec";
 
         const CHAPTERS = [
@@ -260,7 +255,7 @@
             "পরিবেশ ও তার সম্পদ"
         ];
 
-        // অফলাইন বা ক্লাউড সংযোগের অনুপস্থিতিতে কাজ চালানোর জন্য বীজ (Seed) ডাটা
+        // ডিফল্ট সিডেড মেটেরিয়াল এবং গুগল ফর্ম লিংকস
         const SEEDED_MATERIALS = [
             { id: "seed_m1", chapter: "জীবন ও তার বৈচিত্র", title: "ট্যাক্সোনমির গুরুত্ব ও দ্বিপদ নামকরণের নিয়মাবলী", type: "PDF Notes", link: "https://drive.google.com" },
             { id: "seed_m2", chapter: "জীবন সংগঠনের স্তর", title: "প্রাণী কোষ ও উদ্ভিদ কোষের মূল পার্থক্য", type: "PDF Notes", link: "https://drive.google.com" }
@@ -272,14 +267,12 @@
         ];
 
         const SEEDED_MOCKS = [
-            { id: "seed_mock1", title: "অধ্যায় ১ ও ২ সম্মিলিত মূল্যায়ন", link: "https://docs.google.com/forms" }
+            { id: "seed_mock1", title: "অধ্যায় ১ ও ২ সম্মিলিত মূল্যায়ন পরীক্ষা", link: "https://docs.google.com/forms" }
         ];
 
         const SEEDED_MCQS = [
-            { id: "seed_mcq1", chapter: "জীবন ও তার বৈচিত্র", q: "ট্যাক্সোনমির জনক কে?", optA: "ল্যামার্ক", optB: "ডারউইন", optC: "ক্যারোলাস লিনিয়াস", optD: "অ্যারিস্টটল", ans: "optC" },
-            { id: "seed_mcq2", chapter: "জীবন সংগঠনের স্তর", q: "কোষের শক্তিকেন্দ্র বা শক্তিঘর বলা হয় কোন অঙ্গাণুকে?", optA: "গলগি বডি", optB: "মাইটোকন্ড্রিয়া", optC: "লাইসোজোম", optD: "প্লাস্টিড", ans: "optB" },
-            { id: "seed_mcq3", chapter: "জৈবনিক প্রক্রিয়া", q: "শালোকসংশ্লেষের প্রধান রঞ্জক উপাদান কোনটি?", optA: "ক্যারোটিন", optB: "ক্লোরোফিল", optC: "জ্যান্থোফিল", optD: "ফাইকোসায়ানিন", ans: "optB" },
-            { id: "seed_mcq4", chapter: "জীববিদ্যা ও মানবকল্যাণ", q: "নিচের কোনটি ম্যালেরিয়া রোগের জীবাণু বহন করে?", optA: "স্ত্রী অ্যানোফিলিস মশা", optB: "এডিস মশা", optC: "কিউলেক্স মশা", optD: "গৃহ মাছি", ans: "optA" }
+            { id: "seed_mcq1", chapter: "জীবন ও তার বৈচিত্র", title: "অধ্যায় ১: কুইজ টেস্ট ও মূল্যায়ন", link: "https://docs.google.com/forms" },
+            { id: "seed_mcq2", chapter: "জীবন সংগঠনের স্তর", title: "অধ্যায় ২: কোষ ও অঙ্গাণু প্র্যাকটিস সেট", link: "https://docs.google.com/forms" }
         ];
 
         let state = {
@@ -287,8 +280,7 @@
             view: 'login', 
             data: { materials: [], videos: [], mockTests: [], practiceTests: [], students: [], logs: [] },
             currentChapter: 0,
-            studentTab: 'notes',
-            score: 0
+            studentTab: 'notes'
         };
 
         // UI নোটিফিকেশন সিস্টেম
@@ -311,7 +303,7 @@
             document.getElementById('loader').style.display = show ? 'flex' : 'none';
         }
 
-        // নিরাপদ কাস্টম মডাল কনফার্মেশন সিস্টেম (অ্যালার্ট বিকল্প)
+        // কাস্টম মডাল উইন্ডো
         window.openModal = function(title, body, confirmBtnText = 'ঠিক আছে', cancelBtnText = 'বাতিল', showCancel = true) {
             return new Promise((resolve) => {
                 const modal = document.getElementById('custom-modal');
@@ -355,10 +347,10 @@
         }
 
         // ==========================================
-        // 2. GOOGLE APPS SCRIPT DATABASE INTEGRATION
+        // 2. GOOGLE APPS SCRIPT API INTEGRATION
         // ==========================================
         async function fetchAPI(action = 'get', payload = null) {
-            if (GAS_URL.includes("YOUR_GOOGLE_APPS_SCRIPT")) {
+            if (GAS_URL.includes("YOUR_GOOGLE_APPS_SCRIPT") || GAS_URL === "") {
                 console.warn("GAS URL সেট করা নেই। অফলাইন লোকাল ব্যাকআপ ব্যবহার হচ্ছে।");
                 return handleLocalFallback(action, payload);
             }
@@ -368,7 +360,6 @@
                     const res = await fetch(GAS_URL);
                     const json = await res.json();
                     if (json.status === 'success') {
-                        // ডাটা সিঙ্ক সফল হলে লোকাল স্টোরেজে সংরক্ষণ
                         state.data = { 
                             materials: json.data.materials || [], 
                             videos: json.data.videos || [], 
@@ -382,7 +373,6 @@
                     }
                     throw new Error("Apps Script response failure");
                 } else {
-                    // POST রিকোয়েস্ট পাঠায়
                     const res = await fetch(GAS_URL, {
                         method: 'POST',
                         body: JSON.stringify({ action, data: payload })
@@ -396,7 +386,7 @@
             }
         }
 
-        // ইন্টারনেট বা স্ক্রিপ্ট ত্রুটি হলে লোকাল ডেটা হ্যান্ডলিং
+        // ইন্টারনেট না থাকলে লোকাল স্টোরেজে ডেটা সংরক্ষণ করার ব্যাকআপ
         function handleLocalFallback(action, payload) {
             const defaultData = { 
                 materials: SEEDED_MATERIALS, 
@@ -443,17 +433,14 @@
             await fetchAPI('get');
         }
 
-        // এডমিন দ্বারা কোনো উপাদান মুছে ফেলার জন্য Apps Script এ রিকোয়েস্ট ও লোকাল ক্লিনিং
         window.deleteCloudItem = async function(collectionName, docId) {
             const confirmed = await openModal("নিশ্চিত করুন", "আপনি কি সত্যিই এই উপাদানটি মুছে ফেলতে চান?", "হ্যাঁ, মুছুন", "বাতিল");
             if (!confirmed) return;
 
             showSpinner(true);
             try {
-                // Apps Script এ ডিলিট রিকোয়েস্ট পাঠানো (যদি আপনার শিটে ডিলিট স্ক্রিপ্ট থাকে)
                 await fetchAPI('delete_item', { collection: collectionName, id: docId });
                 
-                // লোকাল ফিল্টারিং
                 state.data[collectionName] = state.data[collectionName].filter(item => item.id !== docId && item.title !== docId && item.name !== docId);
                 localStorage.setItem('ls_data_class9', JSON.stringify(state.data));
                 
@@ -498,15 +485,13 @@
 
             showSpinner(true);
             try {
-                await initData(); // তাজা ডাটা রিফ্রেশ করা
+                await initData();
 
-                // চেক করুন ছাত্রটি তালিকায় আছে কিনা, না থাকলে যুক্ত করুন
                 const exists = (state.data.students || []).find(s => s.roll == student.roll && s.name.toLowerCase() === student.name.toLowerCase());
                 if (!exists) {
                     await fetchAPI('add_student', student);
                 }
 
-                // লগইন হিস্ট্রিতে রেকর্ড যোগ করুন
                 const log = {
                     date: new Date().toLocaleString('bn-BD', { timeZone: 'Asia/Kolkata' }),
                     name: student.name,
@@ -686,14 +671,14 @@
             mitochondria: {
                 title: "মাইটোকন্ড্রিয়া",
                 subtitle: "Mitochondria (কোষের শক্তিঘর)",
-                desc: "মাইটোকন্ড্রিয়া হল দ্বি-পর্দাবৃত দণ্ডাকার বা ডিম্বাকার কোষ অঙ্গাণু। এর ভেতরের পর্দাটি ভেতরের দিকে ভাঁজ হয়ে আঙুলের মতো অংশ সৃষ্টি করে, যাকে কৃষ্টি (Cristae) বলে। এর ভেতরে শ্বসনের গুরুত্বপূর্ণ উৎসেচক থাকে।",
+                desc: "মাইটোকন্ড্রিয়া হল দ্বি-পর্দাবৃত দণ্ডাকার বা ডিম্বাকার কোষ অঙ্গাণু। এর ভেতরের পর্দাটি ভেতরের দিকে ভাঁজ হয়ে আঙুলের মতো অংশ সৃষ্টি করে, যাকে কৃষ্টি (Cristae) বলে। এর ভেতরে শ্বসনের গুরুত্বপূর্ণ ও প্রয়োজনীয় এনজাইম থাকে।",
                 jobs: "১. কোষীয় শ্বসনের শেষ পর্যায় সম্পন্ন করে প্রচুর পরিমাণ শক্তি (ATP) উৎপন্ন করে।\n২. এই কারণে একে কোষের 'শক্তিঘর' (Powerhouse) বলা হয়।"
             },
             chloroplast: {
                 title: "ক্লোরোপ্লাস্ট",
                 subtitle: "Chloroplast (প্লাস্টিড)",
                 desc: "ক্লোরোপ্লাস্ট হল সবুজ রঙের দ্বি-পর্দাবৃত ডিম্বাকার প্লাস্টিড যা উদ্ভিদের পাতায় ও কচি কান্ডে প্রচুর পাওয়া যায়। এর ভেতরে চ্যাপ্টা থলির মতো অংশ গ্রানা (Grana) এবং তরল ধাত্র স্ট্রোমা (Stroma) থাকে।",
-                jobs: "১. উদ্ভিদের সবুজ অংশে সালোকসংশ্লেষ (Photosynthesis) প্রক্রিয়ায় শর্বরাজাতীয় খাদ্য প্রস্তুত করা।\n২. আলোকশক্তিকে রাসায়নিক শক্তিতে রূপান্তর করা।"
+                jobs: "১. উদ্ভিদের সবুজ অংশে সালোকসংশ্লেষ (Photosynthesis) প্রক্রিয়ায় শর্করাজাতীয় খাদ্য প্রস্তুত করা।\n২. আলোকশক্তিকে রাসায়নিক শক্তিতে রূপান্তর করা।"
             },
             vacuole: {
                 title: "ভ্যাকুওল",
@@ -704,7 +689,7 @@
             golgi: {
                 title: "গলগি বডি",
                 subtitle: "Golgi Apparatus",
-                desc: "নিউক্লিয়াসের কাছে অবস্থিত চ্যাপ্টা, সমান্তরাল থলির মতো নলাকার পর্দা-ঘেরা অংশকে golgi বস্তু বা গলগি বডি বলে। এগুলি সিস্টার্নি, ভ্যাকুওল ও ভেসিকল নিয়ে গঠিত।",
+                desc: "নিউক্লিয়াসের কাছে অবস্থিত চ্যাপ্টা, সমান্তরাল থলির মতো নলাকার পর্দা-ঘেরা অংশকে গোলগি বস্তু বা গলগি বডি বলে। এগুলি সিস্টার্নি, ভ্যাকুওল ও ভেসিকল নিয়ে গঠিত।",
                 jobs: "১. কোষ থেকে প্রয়োজনীয় উৎসেচক, হরমোন ক্ষরণে সাহায্য করে।\n২. কোষ প্রাচীর এবং লাইসোজোম তৈরিতে মুখ্য ভূমিকা পালন করে।"
             }
         };
@@ -739,7 +724,7 @@
         window.loadStudentView = function(type, index = null) {
             const main = document.getElementById('std-main-content');
             
-            // পূর্বের অ্যাক্টিভ স্টাইল ক্লিয়ার করা
+            // পূর্বের অ্যাক্টিভ স্টাইল ক্লিয়ার করা
             document.querySelectorAll('.std-nav-btn').forEach(btn => {
                 btn.className = btn.className.replace('bg-emerald-50 border-primary text-primary', 'border-transparent text-gray-700');
             });
@@ -807,7 +792,14 @@
         }
 
         window.openExternalTest = async function(url) {
-            const proceed = await openModal("মক টেস্ট শুরু", "এই টেস্টটি একটি গুগল ফর্মের লিংকে খুলবে। আপনি কি এগিয়ে যেতে চান?", "হ্যাঁ, চলুন", "না, ফেরত যান");
+            const proceed = await openModal("মক টেস্ট শুরু", "এই টেস্টটি একটি গুগল ফর্মের লিংকে খুলবে। তুমি কি এগিয়ে যেতে চাও?", "হ্যাঁ, চলুন", "না, ফেরত যান");
+            if (proceed) {
+                window.open(url, '_blank');
+            }
+        }
+
+        window.openExternalQuiz = async function(url) {
+            const proceed = await openModal("প্র্যাকটিস টেস্ট শুরু", "এই প্র্যাকটিস MCQ টেস্টটি গুগল ফর্মের মাধ্যমে নেওয়া হবে। তুমি কি শুরু করতে চাও?", "হ্যাঁ, চলুন", "না, ফেরত যান");
             if (proceed) {
                 window.open(url, '_blank');
             }
@@ -828,7 +820,7 @@
                         <h2 class="text-xl md:text-2xl font-black mt-2">${chName}</h2>
                     </div>
 
-                    <!-- Curriculum Sub Tabs -->
+                    <!-- Tab Menus -->
                     <div class="flex gap-2 border-b-2 overflow-x-auto pb-1 hide-scrollbar bg-white p-3 rounded-xl shadow-sm">
                         <button onclick="switchChapterTab('notes')" class="tab-btn whitespace-nowrap px-5 py-3 rounded-lg font-bold text-sm transition-all duration-300 flex items-center gap-2 ${state.studentTab === 'notes' ? 'active text-primary bg-emerald-50' : 'text-gray-500 hover:bg-gray-50'}"><i class="fa-solid fa-book-open"></i> স্টাডি নোটস</button>
                         <button onclick="switchChapterTab('videos')" class="tab-btn whitespace-nowrap px-5 py-3 rounded-lg font-bold text-sm transition-all duration-300 flex items-center gap-2 ${state.studentTab === 'videos' ? 'active text-primary bg-emerald-50' : 'text-gray-500 hover:bg-gray-50'}"><i class="fa-brands fa-youtube text-red-500"></i> ভিডিও ক্লাস</button>
@@ -847,7 +839,6 @@
             const area = document.getElementById('tab-content-area');
             if(!area) return;
             
-            // হাইলাইট ট্যাব বাটন
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.className = "tab-btn whitespace-nowrap px-5 py-3 rounded-lg font-bold text-sm transition-all duration-300 flex items-center gap-2 text-gray-500 hover:bg-gray-50";
                 const testTag = tab === 'notes' ? 'নোটস' : tab === 'videos' ? 'ভিডিও' : 'MCQ';
@@ -907,39 +898,37 @@
         }
 
         // ==========================================
-        // 8. PRACTICE MCQ TEST MODULE
+        // 8. PRACTICE MCQ LIST (GOOGLE FORM DRIVEN)
         // ==========================================
         function renderMCQ(container, chName) {
             const mcqs = (state.data.practiceTests || []).filter(q => q.chapter === chName);
             
             if(mcqs.length === 0) {
-                container.innerHTML = `<div class="p-12 text-center bg-white rounded-2xl text-gray-400 shadow-sm border border-dashed border-gray-200">এই অধ্যায়ের কোনো প্র্যাকটিস প্রশ্ন নেই।</div>`;
+                container.innerHTML = `<div class="p-12 text-center bg-white rounded-2xl text-gray-400 shadow-sm border border-dashed border-gray-200">এই অধ্যায়ের জন্য কোনো গুগল ফর্ম প্র্যাকটিস কুইজ এখনো যুক্ত করা হয়নি।</div>`;
                 return;
             }
 
-            state.score = 0;
-            updateScoreDisplays();
-
             let html = `
-                <div class="bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-2xl p-4 shadow-sm flex justify-between items-center sticky top-0 z-10">
-                    <span class="font-extrabold text-sm md:text-base"><i class="fa-solid fa-clipboard-question"></i> মোট প্রশ্ন: ${toBengaliNum(mcqs.length)}টি</span>
-                    <span class="font-bold bg-white text-emerald-800 px-4 py-2 rounded-xl shadow-md text-sm">তোমার স্কোর: <span id="mcq-score" class="font-black text-lg">০</span></span>
+                <div class="bg-gradient-to-r from-purple-500 to-indigo-500 text-white rounded-2xl p-4 shadow-sm flex items-center gap-2 mb-4">
+                    <span class="font-extrabold text-sm md:text-base"><i class="fa-solid fa-clipboard-question"></i> অধ্যায় প্র্যাকটিস কুইজসমূহ: ${toBengaliNum(mcqs.length)}টি টেস্ট লিংক</span>
                 </div>
-                <div class="space-y-4 mt-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             `;
 
             mcqs.forEach((q, i) => {
                 html += `
-                    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 transition duration-300" id="q-card-${i}">
-                        <h3 class="font-extrabold text-gray-800 mb-4 text-base md:text-lg flex items-start gap-2">
-                            <span class="bg-emerald-100 text-primary w-6 h-6 rounded-md flex items-center justify-center text-xs shrink-0 mt-0.5">${toBengaliNum(i+1)}</span> 
-                            <span>${q.q}</span>
-                        </h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="q-opts-${i}">
-                            <button onclick="checkAns(this, 'optA', '${q.ans}', ${i})" class="mcq-btn text-left px-4 py-3.5 border-2 rounded-xl hover:bg-emerald-50 hover:border-emerald-200 text-gray-700 font-bold transition duration-200 text-sm">ক) ${q.optA}</button>
-                            <button onclick="checkAns(this, 'optB', '${q.ans}', ${i})" class="mcq-btn text-left px-4 py-3.5 border-2 rounded-xl hover:bg-emerald-50 hover:border-emerald-200 text-gray-700 font-bold transition duration-200 text-sm">খ) ${q.optB}</button>
-                            <button onclick="checkAns(this, 'optC', '${q.ans}', ${i})" class="mcq-btn text-left px-4 py-3.5 border-2 rounded-xl hover:bg-emerald-50 hover:border-emerald-200 text-gray-700 font-bold transition duration-200 text-sm">গ) ${q.optC}</button>
-                            <button onclick="checkAns(this, 'optD', '${q.ans}', ${i})" class="mcq-btn text-left px-4 py-3.5 border-2 rounded-xl hover:bg-emerald-50 hover:border-emerald-200 text-gray-700 font-bold transition duration-200 text-sm">ঘ) ${q.optD}</button>
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 hover:shadow-xl hover:border-purple-200 transition duration-300">
+                        <div class="flex items-start gap-4">
+                            <div class="bg-purple-100 text-purple-600 w-12 h-12 rounded-xl flex items-center justify-center text-xl shrink-0">
+                                <i class="fa-solid fa-square-poll-horizontal"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <span class="text-[10px] font-black text-purple-600 bg-purple-50 px-2.5 py-0.5 rounded-full uppercase tracking-wider">Practice Quiz</span>
+                                <h3 class="font-extrabold text-gray-800 my-2 truncate" title="${q.title}">${q.title}</h3>
+                                <button onclick="openExternalQuiz('${q.link}')" class="w-full bg-purple-600 hover:bg-purple-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition shadow-sm hover:shadow-purple-200 flex items-center justify-center gap-2">
+                                    কুইজ শুরু করো <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 `;
@@ -947,46 +936,6 @@
 
             html += `</div>`;
             container.innerHTML = html;
-        }
-
-        window.checkAns = function(btnElement, selectedOpt, correctOpt, qIndex) {
-            const container = document.getElementById(`q-opts-${qIndex}`);
-            const btns = container.querySelectorAll('.mcq-btn');
-            
-            let normCorrect = correctOpt ? correctOpt.toString().trim() : '';
-            if (normCorrect === 'ক' || normCorrect === 'a' || normCorrect === 'A' || normCorrect === '1') normCorrect = 'optA';
-            else if (normCorrect === 'খ' || normCorrect === 'b' || normCorrect === 'B' || normCorrect === '2') normCorrect = 'optB';
-            else if (normCorrect === 'গ' || normCorrect === 'c' || normCorrect === 'C' || normCorrect === '3') normCorrect = 'optC';
-            else if (normCorrect === 'ঘ' || normCorrect === 'd' || normCorrect === 'D' || normCorrect === '4') normCorrect = 'optD';
-
-            btns.forEach(b => {
-                b.disabled = true;
-                b.classList.remove('hover:bg-emerald-50', 'hover:border-emerald-200');
-                b.classList.add('cursor-not-allowed', 'opacity-60');
-            });
-
-            const optMap = ['optA', 'optB', 'optC', 'optD'];
-            
-            if (selectedOpt === normCorrect) {
-                btnElement.className = "mcq-btn text-left px-4 py-3.5 border-2 rounded-xl text-white bg-emerald-600 border-emerald-700 font-bold transition duration-200 text-sm opacity-100";
-                state.score++;
-                document.getElementById('mcq-score').innerText = toBengaliNum(state.score);
-                updateScoreDisplays();
-            } else {
-                btnElement.className = "mcq-btn text-left px-4 py-3.5 border-2 rounded-xl text-white bg-red-500 border-red-600 font-bold transition duration-200 text-sm opacity-100";
-                const correctIdx = optMap.indexOf(normCorrect);
-                if(correctIdx !== -1) {
-                    btns[correctIdx].className = "mcq-btn text-left px-4 py-3.5 border-2 rounded-xl text-white bg-emerald-600 border-emerald-700 font-bold transition duration-200 text-sm opacity-100";
-                }
-            }
-        }
-
-        function updateScoreDisplays() {
-            const points = state.score;
-            const mobileBadge = document.getElementById('std-score-badge-mobile');
-            const desktopBadge = document.getElementById('std-score-badge-desktop');
-            if (mobileBadge) mobileBadge.innerHTML = `<i class="fa-solid fa-star mr-1"></i>${toBengaliNum(points)}`;
-            if (desktopBadge) desktopBadge.innerText = toBengaliNum(points);
         }
 
         // ==========================================
@@ -1190,7 +1139,7 @@
                         </form>
 
                         <div class="space-y-3">
-                            <h3 class="font-extrabold text-gray-800"><i class="fa-solid fa-list-check"></i> सक्रिय মক টেস্ট সমূহ (${toBengaliNum(mockTests.length)})</h3>
+                            <h3 class="font-extrabold text-gray-800"><i class="fa-solid fa-list-check"></i> সক্রিয় মক টেস্ট সমূহ (${toBengaliNum(mockTests.length)})</h3>
                             <div class="space-y-2">
                                 ${mockTests.map(m => `
                                     <div class="bg-white p-4 rounded-xl border border-gray-100 flex justify-between items-center gap-4 hover:shadow-sm transition">
@@ -1207,57 +1156,36 @@
                 const practiceTests = state.data.practiceTests || [];
                 html = `
                     <div class="max-w-4xl mx-auto space-y-6">
-                        <h2 class="text-2xl font-black text-gray-800"><i class="fa-solid fa-brain text-purple-500"></i> প্র্যাকটিস MCQ প্রশ্ন ব্যাংক</h2>
+                        <h2 class="text-2xl font-black text-gray-800"><i class="fa-solid fa-brain text-purple-500"></i> প্র্যাকটিস MCQ লিংক যোগ করুন (Google Forms)</h2>
                         
                         <form onsubmit="handleAdminSubmit(event, 'add_practice_test')" class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-4">
                             <div class="grid md:grid-cols-2 gap-4">
-                                <div class="md:col-span-2">
-                                    <label class="block text-sm font-bold text-gray-700 mb-1">অধ্যায়</label>
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-1">অধ্যায় নির্বাচন করুন</label>
                                     <select name="chapter" class="w-full border-2 rounded-xl p-3 focus:outline-none focus:border-primary transition">${chOptions}</select>
                                 </div>
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-1">কুইজের শিরোনাম (Title)</label>
+                                    <input type="text" name="title" required class="w-full border-2 rounded-xl p-3 focus:outline-none focus:border-primary transition" placeholder="উদা: উদ্ভিদের কোষ অঙ্গাণু কুইজ - ১">
+                                </div>
                                 <div class="md:col-span-2">
-                                    <label class="block text-sm font-bold text-gray-700 mb-1">প্রশ্ন (Question)</label>
-                                    <textarea name="q" required class="w-full border-2 rounded-xl p-3 focus:outline-none focus:border-primary transition" rows="2" placeholder="জীবনবিজ্ঞানের প্রশ্নটি লিখুন..."></textarea>
-                                </div>
-                                <div>
-                                    <label class="text-xs font-bold text-gray-500">ক) অপশন A</label>
-                                    <input type="text" name="optA" required class="w-full border-2 rounded-xl p-2.5 focus:outline-none focus:border-primary transition">
-                                </div>
-                                <div>
-                                    <label class="text-xs font-bold text-gray-500">খ) অপশন B</label>
-                                    <input type="text" name="optB" required class="w-full border-2 rounded-xl p-2.5 focus:outline-none focus:border-primary transition">
-                                </div>
-                                <div>
-                                    <label class="text-xs font-bold text-gray-500">গ) অপশন C</label>
-                                    <input type="text" name="optC" required class="w-full border-2 rounded-xl p-2.5 focus:outline-none focus:border-primary transition">
-                                </div>
-                                <div>
-                                    <label class="text-xs font-bold text-gray-500">ঘ) অপশন D</label>
-                                    <input type="text" name="optD" required class="w-full border-2 rounded-xl p-2.5 focus:outline-none focus:border-primary transition">
+                                    <label class="block text-sm font-bold text-gray-700 mb-1">গুগল ফর্ম লিংক (Google Form URL)</label>
+                                    <input type="url" name="link" required class="w-full border-2 rounded-xl p-3 focus:outline-none focus:border-primary transition" placeholder="https://docs.google.com/forms/d/e/...">
                                 </div>
                             </div>
-                            <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-1">সঠিক উত্তর নির্বাচন করুন</label>
-                                <select name="ans" class="w-full border-2 rounded-xl p-3 bg-emerald-50 border-emerald-200 font-extrabold focus:outline-none text-emerald-800">
-                                    <option value="optA">ক) অপশন A</option>
-                                    <option value="optB">খ) অপশন B</option>
-                                    <option value="optC">গ) অপশন C</option>
-                                    <option value="optD">ঘ) অপশন D</option>
-                                </select>
-                            </div>
-                            <button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-purple-500/20 transition">প্রশ্ন যুক্ত করুন <i class="fa-solid fa-plus ml-1"></i></button>
+                            <button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-purple-500/20 transition">কুইজ লিংক যুক্ত করুন <i class="fa-solid fa-plus ml-1"></i></button>
                         </form>
 
                         <div class="space-y-3">
-                            <h3 class="font-extrabold text-gray-800"><i class="fa-solid fa-list-check"></i> সর্বমোট প্রশ্ন ব্যাংক (${toBengaliNum(practiceTests.length)})</h3>
+                            <h3 class="font-extrabold text-gray-800"><i class="fa-solid fa-list-check"></i> কুইজ টেস্ট লিংক তালিকা (${toBengaliNum(practiceTests.length)})</h3>
                             <div class="space-y-2">
                                 ${practiceTests.map(q => `
                                     <div class="bg-white p-4 rounded-xl border border-gray-100 flex justify-between items-start gap-4 hover:shadow-sm transition">
                                         <div class="min-w-0">
-                                            <span class="text-[10px] font-black text-purple-600 bg-purple-50 px-2 py-0.5 rounded-full">${q.chapter}</span>
-                                            <h4 class="font-bold text-gray-800 leading-snug mt-1">${q.q}</h4>
+                                            <span class="text-[10px] font-black text-purple-600 bg-purple-50 px-2.5 py-0.5 rounded-full">${q.chapter}</span>
+                                            <h4 class="font-bold text-gray-800 leading-snug mt-1">${q.title}</h4>
                                         </div>
-                                        <button onclick="deleteCloudItem('practiceTests', '${q.id || q.q}')" class="text-red-500 hover:text-red-700 p-2 rounded-lg hover:bg-red-50 transition shrink-0"><i class="fa-solid fa-trash-can"></i></button>
+                                        <button onclick="deleteCloudItem('practiceTests', '${q.id || q.title}')" class="text-red-500 hover:text-red-700 p-2 rounded-lg hover:bg-red-50 transition shrink-0"><i class="fa-solid fa-trash-can"></i></button>
                                     </div>
                                 `).join('')}
                             </div>
@@ -1280,9 +1208,8 @@
                 if (success) {
                     showToast('সফলভাবে গুগল শিটে সংরক্ষণ করা হয়েছে!');
                     e.target.reset();
-                    await initData(); // ডেটা রিফ্রেশ করা
+                    await initData();
                     
-                    // বর্তমান ট্যাব রি-রেন্ডার করা
                     const tabMap = {
                         'add_material': 'materials',
                         'add_video': 'videos',
@@ -1301,7 +1228,6 @@
             }
         }
 
-        // DOM লোড হলে অ্যাপ রান করা
         window.addEventListener('DOMContentLoaded', initApp);
     </script>
 </body>
